@@ -6,10 +6,12 @@
 package cse.pkg219.pkgfinal.project;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
@@ -32,9 +34,13 @@ public class DataVisualizerApp extends Application {
         Button exitButton = new Button("Exit");
         ToolBar toolbar = new ToolBar(newButton, loadButton, saveButton, saveGraphButton, exitButton);
         
+        ComboBox algoOptions = new ComboBox();
+        algoOptions.getItems().addAll("Select an Algorithm", "Classification", "Clustering");
+        algoOptions.getSelectionModel().selectFirst();
         MyChart chart = new MyChart();
         TextArea textbox = new TextArea();
-        VBox leftSide = new VBox(textbox);
+        
+        VBox leftSide = new VBox(textbox, algoOptions);
         HBox sides = new HBox(leftSide, chart.getChart());
         
         VBox root = new VBox(toolbar, sides);
