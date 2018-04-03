@@ -10,5 +10,13 @@ package cse.pkg219.pkgfinal.project;
  * @author HP
  */
 public class AlgorithmThread {
+    private Algorithm algo;
+    private DataState data;
+    private MyChart chart;
     
+    AlgorithmThread(Algorithm a, DataState d, MyChart c){
+        algo = a;
+        data = d;
+        chart = c;
+    }
 }
