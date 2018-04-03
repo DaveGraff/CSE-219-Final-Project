@@ -17,7 +17,7 @@ import javafx.stage.Stage;
  *
  * @author HP
  */
-public class CSE219FinalProject extends Application {
+public class DataVisualizerApp extends Application {
     
     @Override
     public void start(Stage primaryStage) {
