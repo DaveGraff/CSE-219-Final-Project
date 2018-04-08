@@ -6,16 +6,13 @@
 package cse.pkg219.pkgfinal.project;
 
 import javafx.application.Application;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -24,12 +21,13 @@ import javafx.stage.Stage;
  * @author HP
  */
 public class DataVisualizerApp extends Application {
+    private DataState data = new DataState("");
     
     @Override
     public void start(Stage primaryStage) {
         Button newButton = new Button("New");
         Button loadButton = new Button("Load");
-        Button saveButton = new Button("Save");
+        Button saveButton = new Button("Save");saveButton.setDisable(true);
         Button saveGraphButton = new Button("Save Graph");
         Button exitButton = new Button("Exit");
         ToolBar toolbar = new ToolBar(newButton, loadButton, saveButton, saveGraphButton, exitButton);
@@ -42,15 +40,31 @@ public class DataVisualizerApp extends Application {
         
         VBox leftSide = new VBox(textbox, algoOptions);
         HBox sides = new HBox(leftSide, chart.getChart());
+        sides.setSpacing(5);
         
         VBox root = new VBox(toolbar, sides);
         Scene scene = new Scene(root, 800, 500);
+        
+        saveButton.setOnAction(e -> data.handleSaveRequest(textbox.getText()));
+        
+        textbox.textProperty().addListener(e -> {
+            data.setIsSaved(false);
+            saveButton.setDisable(false);
+        });
         
         primaryStage.setTitle("Data Visualizer");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
+    
+    private void alert(String title, String header, String reason){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(reason);
+        alert.showAndWait();
+    }
+    
     /**
      * @param args the command line arguments
      */
