@@ -46,6 +46,7 @@ public class DataVisualizerApp extends Application {
         Scene scene = new Scene(root, 800, 500);
         
         saveButton.setOnAction(e -> data.handleSaveRequest(textbox.getText()));
+        loadButton.setOnAction(e -> {data.handeLoadRequest(); textbox.setText(data.getData());});
         
         textbox.textProperty().addListener(e -> {
             data.setIsSaved(false);

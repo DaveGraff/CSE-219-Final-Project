@@ -5,7 +5,10 @@
  */
 package cse.pkg219.pkgfinal.project;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -116,5 +119,42 @@ public class DataState {
         public InvalidDataNameException(String name) {
             super(String.format("Invalid name '%s'." + NAME_ERROR_MSG, name));
         }
+    }
+    
+    public void handeLoadRequest(){
+        String maybe = loadingHelper();
+        if (!maybe.equals(""))
+            data = maybe;
+    }
+    
+    private String loadingHelper() {
+        String bleh = "";
+        Stage pStage = new Stage();
+        FileChooser loader = new FileChooser();
+        loader.getExtensionFilters().add(new FileChooser.ExtensionFilter("TSD Files", "*.tsd"));
+        file = loader.showOpenDialog(pStage);
+        String fileName = "";
+        try {
+            fileName = file.toString();
+            String line = null;
+            String total = "";
+
+            FileReader fileReader = new FileReader(fileName);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            while ((line = bufferedReader.readLine()) != null) {
+                total = total.concat(line + "\n");
+            }
+            bufferedReader.close();
+            if (!isWrong(total)) {
+                isSaved = true;
+                bleh = total;
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");
+        } catch (IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");
+        } catch (NullPointerException e) {
+        }
+        return bleh;
     }
 }

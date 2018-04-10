@@ -12,17 +12,20 @@ package cse.pkg219.pkgfinal.project;
 public class RunConfig {
     int maxIter;
     int updateInterval;
+    int clusterNum;
     boolean continuous;
     
     RunConfig(){
         maxIter = 100;
         updateInterval = 5;
         continuous = false;
+        clusterNum = 2;
     }
     
-    RunConfig(int m, int u, boolean c){
+    RunConfig(int m, int u, int cn, boolean c){
         maxIter = m;
         updateInterval = u;
         continuous = c;
+        clusterNum = cn;
     }
 }
