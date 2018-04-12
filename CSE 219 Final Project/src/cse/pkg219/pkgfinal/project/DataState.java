@@ -120,7 +120,7 @@ public class DataState implements Serializable{
                 saveAlert("Line " + line + ": Not a valid format");
             }
             line++;
-            });
+        });
         loadedMetaData[0] = Integer.toString(lineNames.size()) + " Instances";
         loadedMetaData[1] = Integer.toString(labelList.size()) + " Labels";
         loadedMetaData[2] = "Labels: ";

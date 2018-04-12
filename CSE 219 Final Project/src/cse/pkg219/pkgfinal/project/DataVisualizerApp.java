@@ -14,8 +14,11 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -87,6 +90,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         
         CheckBox disableText = new CheckBox("Edit Text");
         disableText.selectedProperty().addListener(e -> {
+            algoOptions.getItems().remove("Classification");
             disabledText = !disabledText;
             textbox.setDisable(disabledText);
             boolean goodData = false;
@@ -96,7 +100,8 @@ public class DataVisualizerApp extends Application implements Serializable{
             if(goodData){
                 algoOptions.setDisable(false);
                 algoOptions.setOpacity(100);
-                //Check for classification
+                if(supportsClassification())
+                    algoOptions.getItems().add("Classification");
             } else{
                 algoOptions.setDisable(true);
                 algoOptions.setOpacity(0);
@@ -128,19 +133,23 @@ public class DataVisualizerApp extends Application implements Serializable{
         sides.setSpacing(5);
         
         VBox root = new VBox(toolbar, sides);
-        Scene scene = new Scene(root, 800, 500);
+        Scene scene = new Scene(root, 800, 450);
         
         saveButton.setOnAction(e -> data.handleSaveRequest(textbox.getText()));
         loadButton.setOnAction(e -> {
-            String [] temp = data.handleLoadRequest();
-            l1.setText(temp[0]);l2.setText(temp[1]);
-            l3.setText(temp[2]);l4.setText(temp[3]);
-            textbox.setText(data.getData());
-            saveButton.setDisable(true);
-            data.setIsSaved(true);
-            algoOptions.setDisable(false);
-            algoOptions.setOpacity(100);
-            //Check for classification
+            try{
+                algoOptions.getItems().remove("Classification");
+                String [] temp = data.handleLoadRequest();
+                l1.setText(temp[0]);l2.setText(temp[1]);
+                l3.setText(temp[2]);l4.setText(temp[3]);
+                textbox.setText(data.getData());
+                saveButton.setDisable(true);
+                data.setIsSaved(true);
+                algoOptions.setDisable(false);
+                algoOptions.setOpacity(100);
+                if(supportsClassification())
+                    algoOptions.getItems().add("Classification");
+            } catch (IndexOutOfBoundsException f){}
         });
         
         textbox.textProperty().addListener(e -> {
@@ -157,6 +166,10 @@ public class DataVisualizerApp extends Application implements Serializable{
                 data.setIsSaved(true);
                 disabledText = false;
                 textbox.setDisable(disabledText);
+                l1.setText("");l2.setText("");
+                l3.setText("");l4.setText("");
+                algoOptions.setDisable(true);
+                algoOptions.setOpacity(0);
             }
         });
         
@@ -179,6 +192,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         alert.setContentText(reason);
         alert.showAndWait();
     }
+    
     /**Used to load config data for algorithms
      * 
      * @return Either the saved runConfigs for the algorithms, or
@@ -203,6 +217,21 @@ public class DataVisualizerApp extends Application implements Serializable{
         } catch(ClassNotFoundException m){System.out.println("This should never be visible");}
         
         return algos;
+    }
+    
+    /**Checks if the current data meets the requirements
+     * to use a Classification algorithm
+     * 
+     * @return T/F
+     */
+    public boolean supportsClassification(){
+        ArrayList<String> labelList = new ArrayList<>();
+        Stream.of(data.getData().split("\n")).map(line -> Arrays.asList(line.split("\t"))).forEach(list -> {
+            String label = list.get(1);
+            if(!labelList.contains(label))
+                labelList.add(label);
+        });
+        return labelList.size() ==  2;
     }
     
     public void saveAlgorithms(){
