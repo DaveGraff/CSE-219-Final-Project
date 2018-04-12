@@ -5,10 +5,12 @@
  */
 package cse.pkg219.pkgfinal.project;
 
+import java.io.Serializable;
+
 /**
  *
  * @author HP
  */
-public enum AlgorithmType {
+public enum AlgorithmType implements Serializable{
     Classification, Clustering
 }

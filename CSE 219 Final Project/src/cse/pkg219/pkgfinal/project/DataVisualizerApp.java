@@ -6,8 +6,14 @@
 package cse.pkg219.pkgfinal.project;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -29,17 +35,17 @@ import javafx.stage.Stage;
  *
  * @author HP
  */
-public class DataVisualizerApp extends Application {
+public class DataVisualizerApp extends Application implements Serializable{
     private DataState data = new DataState("");
     private boolean disabledText = true;
-    private final ArrayList<Algorithm> algorithms = loadAlgorithms();
+    private ArrayList<Algorithm> algorithms = loadAlgorithms();
     
     @Override
     public void start(Stage primaryStage) {
         Button newButton = new Button("New");
         Button loadButton = new Button("Load");
         Button saveButton = new Button("Save");saveButton.setDisable(true);
-        Button saveGraphButton = new Button("Save Graph");
+        Button saveGraphButton = new Button("Save Graph"); saveGraphButton.setDisable(true);
         Button exitButton = new Button("Exit");
         ToolBar toolbar = new ToolBar(newButton, loadButton, saveButton, saveGraphButton, exitButton);
         
@@ -50,7 +56,7 @@ public class DataVisualizerApp extends Application {
         TextArea textbox = new TextArea();textbox.setDisable(true);
         
         final ToggleGroup group = new ToggleGroup();//All available algorithms
-        VBox bigAlgoBox = new VBox();
+        VBox bigAlgoBox = new VBox(); bigAlgoBox.setSpacing(5);
         
         algoOptions.valueProperty().addListener(e ->{
             group.getToggles().clear();
@@ -59,7 +65,12 @@ public class DataVisualizerApp extends Application {
                 if(algo.getType().toString().equals(algoOptions.getValue())){
                     RadioButton temp = new RadioButton(algo.getName());
                     Button settings = new Button("Settings");
-                    HBox algoBox = new HBox(temp, settings);
+                    Label forSpace = new Label("\t");
+                    settings.setOnAction(x -> {
+                        algo.editConfig();
+                        saveAlgorithms();
+                    });
+                    HBox algoBox = new HBox(temp, forSpace, settings);
                     bigAlgoBox.getChildren().add(algoBox);
                 }
             }
@@ -155,6 +166,26 @@ public class DataVisualizerApp extends Application {
         } catch(ClassNotFoundException m){System.out.println("This should never be visible");}
         
         return algos;
+    }
+    
+    public void saveAlgorithms(){
+        PrintWriter pw;
+        try {
+            pw = new PrintWriter("CSE219FinalAlgos.json");
+            pw.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println("This text should never be visible.");
+        } try{   
+            FileOutputStream file = new FileOutputStream("CSE219FinalAlgos.json");
+            ObjectOutputStream out = new ObjectOutputStream(file);
+            
+            out.writeObject(algorithms);
+             
+            out.close();
+            file.close();     
+        } catch(IOException ex){
+            System.out.println("IOException is caught");
+        }
     }
     
     /**

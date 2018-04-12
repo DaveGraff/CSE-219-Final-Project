@@ -5,6 +5,7 @@
  */
 package cse.pkg219.pkgfinal.project;
 
+import java.io.Serializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.layout.VBox;
@@ -13,7 +14,7 @@ import javafx.scene.layout.VBox;
  *
  * @author HP
  */
-public class MyChart {
+public class MyChart implements Serializable{
     private LineChart chart;
     private VBox container;
     

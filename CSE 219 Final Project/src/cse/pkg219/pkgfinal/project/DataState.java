@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -29,7 +30,7 @@ import javafx.stage.Stage;
  *
  * @author HP
  */
-public class DataState {
+public class DataState implements Serializable{
     private String data;
     private boolean isSaved;
     

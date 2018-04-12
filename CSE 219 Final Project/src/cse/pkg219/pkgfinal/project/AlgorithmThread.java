@@ -5,11 +5,13 @@
  */
 package cse.pkg219.pkgfinal.project;
 
+import java.io.Serializable;
+
 /**
  *
  * @author HP
  */
-public class AlgorithmThread {
+public class AlgorithmThread implements Serializable{
     private Algorithm algo;
     private DataState data;
     private MyChart chart;
