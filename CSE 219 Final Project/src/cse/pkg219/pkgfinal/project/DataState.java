@@ -1,3 +1,5 @@
+
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -38,6 +40,8 @@ public class DataState implements Serializable{
     private int line;
     private ArrayList<String> lineNames;
     private boolean isWrong;
+    private String[] loadedMetaData =  new String[4];//0 = # of instances, 1 = # of labels, 2 = label names, 3 = filePath
+    private ArrayList<String> labelList;
     DataState(String input){
         isSaved = true;
         data = input;
@@ -96,6 +100,7 @@ public class DataState implements Serializable{
         isWrong = false;
         lineNames = new ArrayList<>();
         line = 1;
+        labelList = new ArrayList<>();
         Stream.of(text.split("\n")).map(line -> Arrays.asList(line.split("\t"))).forEach(list -> {
             try {
                 String name = checkedName(list.get(0));
@@ -105,6 +110,8 @@ public class DataState implements Serializable{
                 }
                 lineNames.add(name);
                 String   label = list.get(1);
+                if(!labelList.contains(label))
+                    labelList.add(label);
                 String[] pair  = list.get(2).split(",");
                 Point2D  point = new Point2D(Double.parseDouble(pair[0]), Double.parseDouble(pair[1]));
             } catch (Exception e) {
@@ -113,6 +120,13 @@ public class DataState implements Serializable{
             }
             line++;
             });
+        loadedMetaData[0] = Integer.toString(lineNames.size()) + " Instances";
+        loadedMetaData[1] = Integer.toString(labelList.size()) + " Labels";
+        loadedMetaData[2] = "Labels: ";
+        for(String string : labelList){
+            loadedMetaData[2] = loadedMetaData[2].concat(string + ", ");
+        }
+        loadedMetaData[2] = loadedMetaData[2].subSequence(0, loadedMetaData[2].length()-2).toString();
         return isWrong;
     }
     /**
@@ -151,10 +165,13 @@ public class DataState implements Serializable{
     /**
      * Checks if the result returned from loadingHelper is valid
      */
-    public void handeLoadRequest(){
+    public String[] handleLoadRequest(){
         String maybe = loadingHelper();
-        if (!maybe.equals(""))
-            data = maybe;
+        if (!maybe.equals("")){
+            if(!isWrong(maybe))
+                data = maybe;
+        }
+        return loadedMetaData;
     }
     /**
      * Loads data from a user-selected TSD file
@@ -182,6 +199,7 @@ public class DataState implements Serializable{
                 isSaved = true;
                 bleh = total;
             }
+            loadedMetaData[3] = file.toString();
         } catch (FileNotFoundException ex) {
             System.out.println("Unable to open file '" + fileName + "'");
         } catch (IOException ex) {

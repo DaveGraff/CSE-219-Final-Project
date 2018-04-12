@@ -89,7 +89,13 @@ public class DataVisualizerApp extends Application implements Serializable{
             }
         });
         
-        VBox leftSide = new VBox(textbox, disableText, algoOptions, bigAlgoBox); 
+        Label l1 = new Label();
+        Label l2 = new Label();
+        Label l3 = new Label();
+        Label l4 = new Label();
+        VBox loadedMetaData = new VBox(l1, l2, l3, l4);
+        
+        VBox leftSide = new VBox(textbox, disableText, loadedMetaData, algoOptions, bigAlgoBox); 
         leftSide.setPadding(new Insets(10));
         leftSide.setSpacing(5);
         HBox sides = new HBox(leftSide, chart.getChart());
@@ -100,7 +106,9 @@ public class DataVisualizerApp extends Application implements Serializable{
         
         saveButton.setOnAction(e -> data.handleSaveRequest(textbox.getText()));
         loadButton.setOnAction(e -> {
-            data.handeLoadRequest(); 
+            String [] temp = data.handleLoadRequest();
+            l1.setText(temp[0]);l2.setText(temp[1]);
+            l3.setText(temp[2]);l4.setText(temp[3]);
             textbox.setText(data.getData());
             saveButton.setDisable(true);
             data.setIsSaved(true);
