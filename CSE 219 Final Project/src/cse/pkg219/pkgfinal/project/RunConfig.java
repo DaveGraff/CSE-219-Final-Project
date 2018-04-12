@@ -14,14 +14,22 @@ public class RunConfig {
     int updateInterval;
     int clusterNum;
     boolean continuous;
-    
+    /**
+     * The default run configuration for any algorithm
+     */
     RunConfig(){
         maxIter = 100;
         updateInterval = 5;
         continuous = false;
         clusterNum = 2;
     }
-    
+    /**
+     * 
+     * @param m The number of iterations the algorithm will run for
+     * @param u The interval at which the GUI will update the display
+     * @param cn The number of clusters for a Clustering algorithm
+     * @param c If the algorithm is updating continuously
+     */
     RunConfig(int m, int u, int cn, boolean c){
         maxIter = m;
         updateInterval = u;

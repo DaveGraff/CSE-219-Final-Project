@@ -17,6 +17,9 @@ public class MyChart {
     private LineChart chart;
     private VBox container;
     
+    /**
+     * Creates an instance of MyChart to be used by the application
+     */
     MyChart(){
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
@@ -24,6 +27,9 @@ public class MyChart {
         container = new VBox(chart);
     }
     
+    /**
+     * Prompts the user to save the current graph representation
+     */
     public void saveGraph(){
         
     }

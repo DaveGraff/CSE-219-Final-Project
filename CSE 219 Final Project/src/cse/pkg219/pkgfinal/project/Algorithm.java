@@ -14,9 +14,18 @@ public class Algorithm {
     private AlgorithmType type;
     private RunConfig config;
     
-    Algorithm(String n, AlgorithmType t, RunConfig r){
+    /**
+     * Instantiates an Algorithm object with
+     * all the necessary information to find
+     * and run it.
+     * 
+     * @param n The name of the given algorithm
+     * @param t The type of the algorithm 
+     * as defined by AlgorithmType
+     */
+    Algorithm(String n, AlgorithmType t){
         name = n;
         type = t;
-        config = r;
+        config = new RunConfig();
     }
 }

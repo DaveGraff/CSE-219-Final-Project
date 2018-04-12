@@ -55,11 +55,28 @@ public class DataVisualizerApp extends Application {
         Scene scene = new Scene(root, 800, 500);
         
         saveButton.setOnAction(e -> data.handleSaveRequest(textbox.getText()));
-        loadButton.setOnAction(e -> {data.handeLoadRequest(); textbox.setText(data.getData());});
+        loadButton.setOnAction(e -> {
+            data.handeLoadRequest(); 
+            textbox.setText(data.getData());
+            saveButton.setDisable(true);
+            data.setIsSaved(true);
+        });
         
         textbox.textProperty().addListener(e -> {
+            data.setData(textbox.getText());
             data.setIsSaved(false);
             saveButton.setDisable(false);
+        });
+        
+        newButton.setOnAction(e -> {
+            boolean worked = data.handleNewRequest();
+            if (worked){
+                textbox.setText(data.getData());
+                saveButton.setDisable(true);
+                data.setIsSaved(true);
+                disabledText = false;
+                textbox.setDisable(disabledText);
+            }
         });
         
         primaryStage.setTitle("Data Visualizer");
@@ -67,6 +84,13 @@ public class DataVisualizerApp extends Application {
         primaryStage.show();
     }
     
+    /**
+     * Shows the user an Alert for some given error
+     * 
+     * @param title The title of the alert
+     * @param header The header of the alert
+     * @param reason The reason or body of the alert
+     */
     private void alert(String title, String header, String reason){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
