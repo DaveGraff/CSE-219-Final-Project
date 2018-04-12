@@ -28,4 +28,12 @@ public class Algorithm {
         type = t;
         config = new RunConfig();
     }
+    
+    public AlgorithmType getType(){
+        return type;
+    }
+    
+    public String getName(){
+        return name;
+    }
 }

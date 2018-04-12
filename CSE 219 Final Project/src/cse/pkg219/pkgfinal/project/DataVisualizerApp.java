@@ -17,7 +17,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -47,6 +49,22 @@ public class DataVisualizerApp extends Application {
         MyChart chart = new MyChart();
         TextArea textbox = new TextArea();textbox.setDisable(true);
         
+        final ToggleGroup group = new ToggleGroup();//All available algorithms
+        VBox bigAlgoBox = new VBox();
+        
+        algoOptions.valueProperty().addListener(e ->{
+            group.getToggles().clear();
+            bigAlgoBox.getChildren().clear();
+            for(Algorithm algo : algorithms){
+                if(algo.getType().toString().equals(algoOptions.getValue())){
+                    RadioButton temp = new RadioButton(algo.getName());
+                    Button settings = new Button("Settings");
+                    HBox algoBox = new HBox(temp, settings);
+                    bigAlgoBox.getChildren().add(algoBox);
+                }
+            }
+        });
+        
         CheckBox disableText = new CheckBox("Edit Text");
         disableText.selectedProperty().addListener(e -> {
             disabledText = !disabledText;
@@ -60,7 +78,7 @@ public class DataVisualizerApp extends Application {
             }
         });
         
-        VBox leftSide = new VBox(textbox, disableText, algoOptions); 
+        VBox leftSide = new VBox(textbox, disableText, algoOptions, bigAlgoBox); 
         leftSide.setPadding(new Insets(10));
         leftSide.setSpacing(5);
         HBox sides = new HBox(leftSide, chart.getChart());
