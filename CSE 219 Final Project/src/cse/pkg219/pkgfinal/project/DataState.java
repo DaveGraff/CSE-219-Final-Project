@@ -84,7 +84,8 @@ public class DataState implements Serializable{
                 fileWriter = new FileWriter(file);
                 fileWriter.write(data);
                 fileWriter.close();
-                isSaved = true;
+                if(file != null)
+                    isSaved = true;
             } catch(NullPointerException e){//I should probably make this do something...
             } catch (IOException ex) {}
         }
@@ -209,9 +210,8 @@ public class DataState implements Serializable{
         return bleh;
     }
     
-    public boolean handleNewRequest(){
-        if(!isSaved){
-            Stage checkStage = new Stage();
+    public void checkForSave(){
+        Stage checkStage = new Stage();
             Button cancelButton = new Button("Cancel");cancelButton.setCancelButton(true);
             Button continueButton = new Button("Continue without saving");
             Button saveButton = new Button("Save");
@@ -238,8 +238,11 @@ public class DataState implements Serializable{
             });
             
             checkStage.showAndWait();
-            
-            
+    }
+    
+    public boolean handleNewRequest(){
+        if(!isSaved){
+            checkForSave();
         } else if(isSaved){
             data = "";
         }

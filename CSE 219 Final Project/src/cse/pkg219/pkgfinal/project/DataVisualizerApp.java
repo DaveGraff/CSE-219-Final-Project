@@ -8,7 +8,6 @@ package cse.pkg219.pkgfinal.project;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -49,8 +48,17 @@ public class DataVisualizerApp extends Application implements Serializable{
         Button exitButton = new Button("Exit");
         ToolBar toolbar = new ToolBar(newButton, loadButton, saveButton, saveGraphButton, exitButton);
         
-        ComboBox algoOptions = new ComboBox();
-        algoOptions.getItems().addAll("Select an Algorithm", "Classification", "Clustering");
+        exitButton.setOnAction(e -> {
+            if(!data.getIsSaved()){
+                data.checkForSave();
+            }
+            if(data.getIsSaved())
+                System.exit(0);
+        });
+        
+        ComboBox algoOptions = new ComboBox(); 
+        algoOptions.setDisable(true);algoOptions.setOpacity(0);//disabled until later
+        algoOptions.getItems().addAll("Select an Algorithm", "Clustering");
         algoOptions.getSelectionModel().selectFirst();
         MyChart chart = new MyChart();
         TextArea textbox = new TextArea();textbox.setDisable(true);
@@ -64,6 +72,7 @@ public class DataVisualizerApp extends Application implements Serializable{
             for(Algorithm algo : algorithms){
                 if(algo.getType().toString().equals(algoOptions.getValue())){
                     RadioButton temp = new RadioButton(algo.getName());
+                    group.getToggles().add(temp);
                     Button settings = new Button("Settings");
                     Label forSpace = new Label("\t");
                     settings.setOnAction(x -> {
@@ -82,10 +91,15 @@ public class DataVisualizerApp extends Application implements Serializable{
             textbox.setDisable(disabledText);
             boolean goodData = false;
             if(disabledText){
-                goodData = data.isWrong(data.getData());
+                goodData = !data.isWrong(data.getData());
             }
             if(goodData){
-                //Show run button
+                algoOptions.setDisable(false);
+                algoOptions.setOpacity(100);
+                //Check for classification
+            } else{
+                algoOptions.setDisable(true);
+                algoOptions.setOpacity(0);
             }
         });
         
@@ -95,7 +109,19 @@ public class DataVisualizerApp extends Application implements Serializable{
         Label l4 = new Label();
         VBox loadedMetaData = new VBox(l1, l2, l3, l4);
         
-        VBox leftSide = new VBox(textbox, disableText, loadedMetaData, algoOptions, bigAlgoBox); 
+        Button runButton = new Button("Run");runButton.setDefaultButton(true);
+        runButton.setDisable(true);runButton.setOpacity(0);
+        runButton.setOnAction(e -> alert("Error" , "", "This function isn't supported yet :("));
+        
+        group.selectedToggleProperty().addListener(e -> {
+            if(group.getSelectedToggle() != null){
+                runButton.setDisable(false);runButton.setOpacity(100);
+            } else {
+                runButton.setDisable(true);runButton.setOpacity(0);
+            }
+        });
+        
+        VBox leftSide = new VBox(textbox, disableText, loadedMetaData, algoOptions, bigAlgoBox, runButton); 
         leftSide.setPadding(new Insets(10));
         leftSide.setSpacing(5);
         HBox sides = new HBox(leftSide, chart.getChart());
@@ -112,6 +138,9 @@ public class DataVisualizerApp extends Application implements Serializable{
             textbox.setText(data.getData());
             saveButton.setDisable(true);
             data.setIsSaved(true);
+            algoOptions.setDisable(false);
+            algoOptions.setOpacity(100);
+            //Check for classification
         });
         
         textbox.textProperty().addListener(e -> {
