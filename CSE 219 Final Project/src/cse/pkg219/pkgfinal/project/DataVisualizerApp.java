@@ -5,7 +5,12 @@
  */
 package cse.pkg219.pkgfinal.project;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -25,6 +30,7 @@ import javafx.stage.Stage;
 public class DataVisualizerApp extends Application {
     private DataState data = new DataState("");
     private boolean disabledText = true;
+    private final ArrayList<Algorithm> algorithms = loadAlgorithms();
     
     @Override
     public void start(Stage primaryStage) {
@@ -44,10 +50,19 @@ public class DataVisualizerApp extends Application {
         CheckBox disableText = new CheckBox("Edit Text");
         disableText.selectedProperty().addListener(e -> {
             disabledText = !disabledText;
-            textbox.setDisable(disabledText);            
+            textbox.setDisable(disabledText);
+            boolean goodData = false;
+            if(disabledText){
+                goodData = data.isWrong(data.getData());
+            }
+            if(goodData){
+                //Show run button
+            }
         });
         
-        VBox leftSide = new VBox(textbox, disableText, algoOptions);
+        VBox leftSide = new VBox(textbox, disableText, algoOptions); 
+        leftSide.setPadding(new Insets(10));
+        leftSide.setSpacing(5);
         HBox sides = new HBox(leftSide, chart.getChart());
         sides.setSpacing(5);
         
@@ -97,6 +112,31 @@ public class DataVisualizerApp extends Application {
         alert.setHeaderText(header);
         alert.setContentText(reason);
         alert.showAndWait();
+    }
+    /**Used to load config data for algorithms
+     * 
+     * @return Either the saved runConfigs for the algorithms, or
+     * the default configs if none have been set
+     */
+    private ArrayList<Algorithm> loadAlgorithms(){
+        ArrayList<Algorithm> algos= new ArrayList<>();
+        
+        try{   
+            FileInputStream file = new FileInputStream("CSE219FinalAlgos.ser");
+            ObjectInputStream in = new ObjectInputStream(file);
+             
+            algos = (ArrayList<Algorithm>) in.readObject();
+            
+            in.close();
+            file.close();
+        } catch(IOException ex){//There is no saved info on runConfigs
+            algos.add(new Algorithm("Classification A", AlgorithmType.Classification));
+            algos.add(new Algorithm("Classification B", AlgorithmType.Classification));
+            algos.add(new Algorithm("Clustering A", AlgorithmType.Clustering));
+            algos.add(new Algorithm("Clustering B", AlgorithmType.Clustering));
+        } catch(ClassNotFoundException m){System.out.println("This should never be visible");}
+        
+        return algos;
     }
     
     /**

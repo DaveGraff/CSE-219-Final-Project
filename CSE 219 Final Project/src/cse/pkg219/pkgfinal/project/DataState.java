@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -133,8 +134,8 @@ public class DataState {
      */
     public void saveAlert(String reason){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Save Error");
-        alert.setHeaderText("There was an error in saving your data");
+        alert.setTitle("Error");
+        alert.setHeaderText("There is an error in your data");
         alert.setContentText(reason);
         alert.showAndWait();
     }
@@ -196,7 +197,10 @@ public class DataState {
             Button continueButton = new Button("Continue without saving");
             Button saveButton = new Button("Save");
             Label checkLabel = new Label("Your current data is unsaved, would you like to save it?");
-            VBox container = new VBox(checkLabel, new HBox(continueButton, saveButton, cancelButton));
+            HBox buttons = new HBox(continueButton, saveButton, cancelButton); buttons.setSpacing(5);
+            VBox container = new VBox(checkLabel, buttons);
+            container.setPadding(new Insets(10));
+            container.setSpacing(5);
             Scene scene = new Scene(container);
             checkStage.setScene(scene);
             
