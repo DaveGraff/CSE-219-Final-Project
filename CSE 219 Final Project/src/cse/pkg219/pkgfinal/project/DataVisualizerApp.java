@@ -91,6 +91,12 @@ public class DataVisualizerApp extends Application implements Serializable{
             }
         });
         
+        Label l1 = new Label();
+        Label l2 = new Label();
+        Label l3 = new Label();
+        Label l4 = new Label();
+        VBox loadedMetaData = new VBox(l1, l2, l3, l4);
+        
         CheckBox disableText = new CheckBox("Edit Text");
         disableText.selectedProperty().addListener(e -> {
             algoOptions.getItems().remove("Classification");
@@ -99,10 +105,14 @@ public class DataVisualizerApp extends Application implements Serializable{
             boolean goodData = false;
             algoOptions.getSelectionModel().selectFirst();
             runButton.setDisable(true);runButton.setOpacity(0);
+            String[] metaData = new String[4];
+            l1.setText("");l2.setText("");l3.setText("");l4.setText("");
             if(disabledText){
-                goodData = !data.isWrong(data.getData());
+                metaData = data.isWrong(data.getData());
+                goodData = !data.getIsWrong();
             }
             if(goodData){
+                l1.setText(metaData[0]);l2.setText(metaData[1]);l3.setText(metaData[2]);
                 algoOptions.setDisable(false);
                 algoOptions.setOpacity(100);
                 if(supportsClassification())
@@ -113,12 +123,6 @@ public class DataVisualizerApp extends Application implements Serializable{
             }
         });
         
-        Label l1 = new Label();
-        Label l2 = new Label();
-        Label l3 = new Label();
-        Label l4 = new Label();
-        VBox loadedMetaData = new VBox(l1, l2, l3, l4);
-                
         group.selectedToggleProperty().addListener(e -> {
             if(group.getSelectedToggle() != null){
                 runButton.setDisable(false);runButton.setOpacity(100);

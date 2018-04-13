@@ -63,6 +63,10 @@ public class DataState implements Serializable{
         data = d;
     }
     
+    public boolean getIsWrong(){
+        return isWrong;
+    }
+    
     /**
      * Attempts to save the data present in TextArea. 
      * Will alert the user if there is an error.
@@ -70,7 +74,8 @@ public class DataState implements Serializable{
      * @param text The data from the TextArea to be saved.
      */
     public void handleSaveRequest(String text) {
-        if(!isWrong(text)){
+        isWrong(text);
+        if(!isWrong){
             data = text;
             Stage pStage = new Stage();
             FileChooser saver = new FileChooser();
@@ -98,7 +103,7 @@ public class DataState implements Serializable{
      * @param text The data being checked
      * @return 
      */
-    public boolean isWrong(String text){
+    public String[] isWrong(String text){
         isWrong = false;
         lineNames = new ArrayList<>();
         line = 1;
@@ -131,7 +136,7 @@ public class DataState implements Serializable{
         loadedMetaData[2] = loadedMetaData[2].subSequence(0, loadedMetaData[2].length()-2).toString();
         if(!isWrong)
             isSaved = false;
-        return isWrong;
+        return loadedMetaData;
     }
     
     /**
@@ -179,7 +184,8 @@ public class DataState implements Serializable{
     public String[] handleLoadRequest(){
         String maybe = loadingHelper();
         if (!maybe.equals("")){
-            if(!isWrong(maybe))
+            isWrong(maybe);
+            if(!isWrong)
                 data = maybe;
         }
         return loadedMetaData;
@@ -207,7 +213,8 @@ public class DataState implements Serializable{
                 total = total.concat(line + "\n");
             }
             bufferedReader.close();
-            if (!isWrong(total)) {
+            isWrong(total);
+            if (!isWrong) {
                 isSaved = true;
                 bleh = total;
             }
