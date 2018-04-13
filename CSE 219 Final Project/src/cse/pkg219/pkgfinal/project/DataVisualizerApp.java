@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -50,6 +49,10 @@ public class DataVisualizerApp extends Application implements Serializable{
         Button saveGraphButton = new Button("Save Graph"); saveGraphButton.setDisable(true);
         Button exitButton = new Button("Exit");
         ToolBar toolbar = new ToolBar(newButton, loadButton, saveButton, saveGraphButton, exitButton);
+        
+        Button runButton = new Button("Run");runButton.setDefaultButton(true);
+        runButton.setDisable(true);runButton.setOpacity(0);
+        runButton.setOnAction(e -> alert("Error" , "", "This function isn't supported yet :("));
         
         exitButton.setOnAction(e -> {
             if(!data.getIsSaved()){
@@ -94,6 +97,8 @@ public class DataVisualizerApp extends Application implements Serializable{
             disabledText = !disabledText;
             textbox.setDisable(disabledText);
             boolean goodData = false;
+            algoOptions.getSelectionModel().selectFirst();
+            runButton.setDisable(true);runButton.setOpacity(0);
             if(disabledText){
                 goodData = !data.isWrong(data.getData());
             }
@@ -113,11 +118,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         Label l3 = new Label();
         Label l4 = new Label();
         VBox loadedMetaData = new VBox(l1, l2, l3, l4);
-        
-        Button runButton = new Button("Run");runButton.setDefaultButton(true);
-        runButton.setDisable(true);runButton.setOpacity(0);
-        runButton.setOnAction(e -> alert("Error" , "", "This function isn't supported yet :("));
-        
+                
         group.selectedToggleProperty().addListener(e -> {
             if(group.getSelectedToggle() != null){
                 runButton.setDisable(false);runButton.setOpacity(100);
@@ -144,7 +145,8 @@ public class DataVisualizerApp extends Application implements Serializable{
                 l3.setText(temp[2]);l4.setText(temp[3]);
                 textbox.setText(data.getData());
                 saveButton.setDisable(true);
-                data.setIsSaved(true);
+                data.setIsSaved(true);algoOptions.getSelectionModel().selectFirst();
+                runButton.setDisable(true);runButton.setOpacity(0);
                 algoOptions.setDisable(false);
                 algoOptions.setOpacity(100);
                 if(supportsClassification())
@@ -170,6 +172,8 @@ public class DataVisualizerApp extends Application implements Serializable{
                 l3.setText("");l4.setText("");
                 algoOptions.setDisable(true);
                 algoOptions.setOpacity(0);
+                algoOptions.getSelectionModel().selectFirst();
+                runButton.setDisable(true);runButton.setOpacity(0);
             }
         });
         
@@ -200,7 +204,7 @@ public class DataVisualizerApp extends Application implements Serializable{
      */
     private ArrayList<Algorithm> loadAlgorithms(){
         ArrayList<Algorithm> algos= new ArrayList<>();
-        
+
         try{   
             FileInputStream file = new FileInputStream("CSE219FinalAlgos.ser");
             ObjectInputStream in = new ObjectInputStream(file);
@@ -237,12 +241,12 @@ public class DataVisualizerApp extends Application implements Serializable{
     public void saveAlgorithms(){
         PrintWriter pw;
         try {
-            pw = new PrintWriter("CSE219FinalAlgos.json");
+            pw = new PrintWriter("CSE219FinalAlgos.ser");
             pw.close();
         } catch (FileNotFoundException ex) {
             System.out.println("This text should never be visible.");
         } try{   
-            FileOutputStream file = new FileOutputStream("CSE219FinalAlgos.json");
+            FileOutputStream file = new FileOutputStream("CSE219FinalAlgos.ser");
             ObjectOutputStream out = new ObjectOutputStream(file);
             
             out.writeObject(algorithms);

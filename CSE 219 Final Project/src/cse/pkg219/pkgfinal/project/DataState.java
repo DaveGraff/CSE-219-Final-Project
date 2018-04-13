@@ -128,6 +128,8 @@ public class DataState implements Serializable{
             loadedMetaData[2] = loadedMetaData[2].concat(string + ", ");
         }
         loadedMetaData[2] = loadedMetaData[2].subSequence(0, loadedMetaData[2].length()-2).toString();
+        if(!isWrong)
+            isSaved = false;
         return isWrong;
     }
     /**
@@ -210,40 +212,41 @@ public class DataState implements Serializable{
         return bleh;
     }
     
-    public void checkForSave(){
+    public void checkForSave() {
         Stage checkStage = new Stage();
-            Button cancelButton = new Button("Cancel");cancelButton.setCancelButton(true);
-            Button continueButton = new Button("Continue without saving");
-            Button saveButton = new Button("Save");
-            Label checkLabel = new Label("Your current data is unsaved, would you like to save it?");
-            HBox buttons = new HBox(continueButton, saveButton, cancelButton); buttons.setSpacing(5);
-            VBox container = new VBox(checkLabel, buttons);
-            container.setPadding(new Insets(10));
-            container.setSpacing(5);
-            Scene scene = new Scene(container);
-            checkStage.setScene(scene);
-            
-            saveButton.setOnAction(e -> {
-                checkStage.close();
-                handleSaveRequest(data);
-                if(isSaved = true)
-                    data = "";
-            });
-            
-            cancelButton.setOnAction(e -> checkStage.close());
-            
-            continueButton.setOnAction(e -> {
-                data = "";
-                checkStage.close();
-            });
-            
-            checkStage.showAndWait();
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setCancelButton(true);
+        Button continueButton = new Button("Continue without saving");
+        Button saveButton = new Button("Save");
+        Label checkLabel = new Label("Your current data is unsaved, would you like to save it?");
+        HBox buttons = new HBox(continueButton, saveButton, cancelButton);
+        buttons.setSpacing(5);
+        VBox container = new VBox(checkLabel, buttons);
+        container.setPadding(new Insets(10));
+        container.setSpacing(5);
+        Scene scene = new Scene(container);
+        checkStage.setScene(scene);
+
+        saveButton.setOnAction(e -> {
+            checkStage.close();
+            handleSaveRequest(data);
+        });
+
+        cancelButton.setOnAction(e -> checkStage.close());
+
+        continueButton.setOnAction(e -> {
+            checkStage.close();
+            data = "";
+        });
+
+        checkStage.showAndWait();
     }
     
     public boolean handleNewRequest(){
         if(!isSaved){
             checkForSave();
-        } else if(isSaved){
+        }
+        if(isSaved){
             data = "";
         }
         return data.equals("");
