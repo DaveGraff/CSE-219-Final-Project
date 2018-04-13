@@ -62,6 +62,7 @@ public class DataState implements Serializable{
     public void setData(String d){
         data = d;
     }
+    
     /**
      * Attempts to save the data present in TextArea. 
      * Will alert the user if there is an error.
@@ -132,6 +133,7 @@ public class DataState implements Serializable{
             isSaved = false;
         return isWrong;
     }
+    
     /**
      * Checks if a given line starts with the required "@" symbol
      * 
@@ -145,6 +147,7 @@ public class DataState implements Serializable{
         }
         return name;
     }
+    
     /**
      * Gives the user an Alert if there was an error in saving their data
      * 
@@ -158,6 +161,10 @@ public class DataState implements Serializable{
         alert.showAndWait();
     }
     
+    /**
+     * Exception to be thrown if a line
+     * of data doesn't start with "@"
+     */
     public static class InvalidDataNameException extends Exception {
         private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character.";
 
@@ -165,6 +172,7 @@ public class DataState implements Serializable{
             super(String.format("Invalid name '%s'." + NAME_ERROR_MSG, name));
         }
     }
+    
     /**
      * Checks if the result returned from loadingHelper is valid
      */
@@ -176,6 +184,7 @@ public class DataState implements Serializable{
         }
         return loadedMetaData;
     }
+    
     /**
      * Loads data from a user-selected TSD file
      * @return The data to be represented
@@ -212,6 +221,10 @@ public class DataState implements Serializable{
         return bleh;
     }
     
+    /**
+     * Prompts the user to
+     * save their data
+     */
     public void checkForSave() {
         Stage checkStage = new Stage();
         Button cancelButton = new Button("Cancel");
@@ -242,6 +255,12 @@ public class DataState implements Serializable{
         checkStage.showAndWait();
     }
     
+    /**
+     * Resets the currently stored data
+     * 
+     * @return Whether the action was
+     * successful
+     */
     public boolean handleNewRequest(){
         if(!isSaved){
             checkForSave();

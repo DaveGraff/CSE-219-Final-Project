@@ -52,7 +52,10 @@ public class Algorithm implements Serializable{
     public String getName(){
         return name;
     }
-    
+    /**
+     * Creates a screen for the user to edit the 
+     * default configuration of an algorithm
+     */
     public void editConfig(){
         Stage newStage = new Stage();
         newStage.setTitle(name + "Settings");

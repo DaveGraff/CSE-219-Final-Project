@@ -237,7 +237,11 @@ public class DataVisualizerApp extends Application implements Serializable{
         });
         return labelList.size() ==  2;
     }
-    
+    /**
+     * Saves the information to run an
+     * algorithm after the configuration
+     * has been updated
+     */
     public void saveAlgorithms(){
         PrintWriter pw;
         try {
