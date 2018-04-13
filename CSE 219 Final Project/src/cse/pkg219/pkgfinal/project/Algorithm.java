@@ -45,6 +45,12 @@ public class Algorithm implements Serializable{
         config = new RunConfig();
     }
     
+    Algorithm(String n, AlgorithmType t, RunConfig r){
+        name = n;
+        type = t;
+        config = r;
+    }
+    
     public AlgorithmType getType(){
         return type;
     }
@@ -52,6 +58,11 @@ public class Algorithm implements Serializable{
     public String getName(){
         return name;
     }
+    
+    public RunConfig getConfig(){
+        return config;
+    }
+    
     /**
      * Creates a screen for the user to edit the 
      * default configuration of an algorithm

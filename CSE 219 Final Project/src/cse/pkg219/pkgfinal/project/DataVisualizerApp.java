@@ -5,12 +5,15 @@
  */
 package cse.pkg219.pkgfinal.project;
 
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -255,14 +258,15 @@ public class DataVisualizerApp extends Application implements Serializable{
             System.out.println("This text should never be visible.");
         } try{   
             FileOutputStream file = new FileOutputStream("CSE219FinalAlgos.ser");
-            ObjectOutputStream out = new ObjectOutputStream(file);
+            OutputStream buffer = new BufferedOutputStream(file);
+            ObjectOutput out = new ObjectOutputStream(buffer);
             
             out.writeObject(algorithms);
              
             out.close();
             file.close();     
         } catch(IOException ex){
-            System.out.println("IOException is caught");
+            //System.out.println("IOException is caught");
         }
     }
     
