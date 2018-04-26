@@ -8,10 +8,12 @@ package cse.pkg219.pkgfinal.project;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -54,5 +56,21 @@ public class MyChart implements Serializable{
     
     public LineChart getChart(){
         return chart;
+    }
+    
+    public void processData(ArrayList<DataPoint> data){
+        ArrayList<String> series = new ArrayList<>();
+        ArrayList<XYChart.Series> meh = new ArrayList<>();
+        for(DataPoint point : data){
+            XYChart.Series temp;
+            if(!series.contains(point.getSeries())){
+                series.add(point.getSeries());
+                temp = new XYChart.Series();
+                temp.setName(point.getSeries());
+                meh.add(temp);
+            } else 
+                temp = meh.get(series.indexOf(point.getSeries()));
+            temp.getData().add(new XYChart.Data(point.getX(), point.getY()));
+        }
     }
 }

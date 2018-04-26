@@ -20,6 +20,18 @@ public class DataPoint {
         series = seriesi;
     }
     
+    public String getSeries(){
+        return series;
+    }
+    
+    public int getX(){
+        return x;
+    }
+    
+    public int getY(){
+        return y;
+    }
+    
     public void setSeries (String seriesi){
         series = seriesi;
     }
