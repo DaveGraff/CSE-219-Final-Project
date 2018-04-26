@@ -73,5 +73,6 @@ public class MyChart implements Serializable{
                 temp = meh.get(series.indexOf(point.getSeries()));
             temp.getData().add(new XYChart.Data(point.getX(), point.getY()));
         });
+        meh.forEach(e -> chart.getData().add(e));
     }
 }

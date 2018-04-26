@@ -55,6 +55,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         Button exitButton = new Button("Exit");
         ToolBar toolbar = new ToolBar(newButton, loadButton, saveButton, saveGraphButton, exitButton);
         
+        MyChart chart = new MyChart();
         Button runButton = new Button("Run");runButton.setDefaultButton(true);
         runButton.setDisable(true);runButton.setOpacity(0);
         runButton.setOnAction(e -> {
@@ -64,7 +65,9 @@ public class DataVisualizerApp extends Application implements Serializable{
                 if (algo.getName().equals(selectedAlgoName))
                     selected = algo;
             }//Selected should never be null
-            AlgorithmThread runner = new AlgorithmThread(selected, data);
+            ArrayList<DataPoint> newData = interpretData(data.getData());
+            AlgorithmThread runner = new AlgorithmThread(selected, newData, chart);
+            runner.run();
             ////////////////////////////////////////////////////////////
         });
         
@@ -80,7 +83,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         algoOptions.setDisable(true);algoOptions.setOpacity(0);//disabled until later
         algoOptions.getItems().addAll("Select an Algorithm", "Clustering");
         algoOptions.getSelectionModel().selectFirst();
-        MyChart chart = new MyChart();
+        
         TextArea textbox = new TextArea();textbox.setDisable(true);
         
         final ToggleGroup group = new ToggleGroup();//All available algorithms
@@ -238,6 +241,20 @@ public class DataVisualizerApp extends Application implements Serializable{
         } catch(ClassNotFoundException m){System.out.println("This should never be visible");}
         
         return algos;
+    }
+    
+    public ArrayList<DataPoint> interpretData(String data){
+        ArrayList<DataPoint> interpreted = new ArrayList<>();
+        Stream.of(data.split("\n")).map(line -> Arrays.asList(line.split("\t"))).forEach(list -> {
+            try {
+                String   name  = list.get(0);
+                String   label = list.get(1);
+                String[] pair  = list.get(2).split(",");
+                DataPoint temp = new DataPoint(Double.parseDouble(pair[0]), Double.parseDouble(pair[1]), label, name);
+                interpreted.add(temp);
+            } catch (Exception e) {}
+        });
+        return interpreted;
     }
     
     /**Checks if the current data meets the requirements

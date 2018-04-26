@@ -10,25 +10,31 @@ package cse.pkg219.pkgfinal.project;
  * @author David
  */
 public class DataPoint {
-    private int x;
-    private int y;
+    private double x;
+    private double y;
     private String series;
+    private String name;
     
-    DataPoint(int xi, int yi, String seriesi){
+    DataPoint(double xi, double yi, String seriesi, String namei){
         x = xi;
         y = yi;
         series = seriesi;
+        name = namei;
     }
     
     public String getSeries(){
         return series;
     }
     
-    public int getX(){
+    public String getName(){
+        return name;
+    }
+    
+    public double getX(){
         return x;
     }
     
-    public int getY(){
+    public double getY(){
         return y;
     }
     
@@ -38,7 +44,7 @@ public class DataPoint {
     
     @Override
     public String toString(){
-        String s = series + "\t" + x + "," + y + "\n"; 
+        String s = "@" + name + "\t" + series + "\t" + x + "," + y + "\n"; 
         return s;
     }
 }

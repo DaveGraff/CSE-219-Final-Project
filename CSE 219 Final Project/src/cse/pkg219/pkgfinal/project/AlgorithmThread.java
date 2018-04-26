@@ -6,6 +6,7 @@
 package cse.pkg219.pkgfinal.project;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,23 +14,25 @@ import java.io.Serializable;
  */
 public class AlgorithmThread implements Serializable, Runnable{
     private Algorithm algo;
-    private DataState data;
+    private ArrayList<DataPoint> data;
     private int max;//Subtract from last run
-    //private MyChart chart;
+    private MyChart chart;
     
-    AlgorithmThread(Algorithm a, DataState d/*, MyChart c*/){
+    AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c){
         algo = a;
         data = d;
         max = a.getConfig().getMaxIter();
-        //chart = c;
+        chart = c;
     }
 
     @Override
     public void run() {
+        int interval = algo.getConfig().getUpdateInterval();
         if(algo.getConfig().getContinuous()){
             //update all the time fam
         } else {
-            int interval = algo.getConfig().getUpdateInterval();
+            
         }
+        chart.processData(data);
     }
 }
