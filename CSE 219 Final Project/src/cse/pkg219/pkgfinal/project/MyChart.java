@@ -59,9 +59,10 @@ public class MyChart implements Serializable{
     }
     
     public void processData(ArrayList<DataPoint> data){
+        chart.getData().clear();
         ArrayList<String> series = new ArrayList<>();
         ArrayList<XYChart.Series> meh = new ArrayList<>();
-        for(DataPoint point : data){
+        data.forEach((point) -> {
             XYChart.Series temp;
             if(!series.contains(point.getSeries())){
                 series.add(point.getSeries());
@@ -71,6 +72,6 @@ public class MyChart implements Serializable{
             } else 
                 temp = meh.get(series.indexOf(point.getSeries()));
             temp.getData().add(new XYChart.Data(point.getX(), point.getY()));
-        }
+        });
     }
 }
