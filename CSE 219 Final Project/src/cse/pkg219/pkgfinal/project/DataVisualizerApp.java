@@ -44,6 +44,8 @@ public class DataVisualizerApp extends Application implements Serializable{
     private boolean disabledText = true;
     private ArrayList<Algorithm> algorithms = loadAlgorithms();
     
+    
+    private String selectedAlgoName = "";
     @Override
     public void start(Stage primaryStage) {
         Button newButton = new Button("New");
@@ -55,7 +57,16 @@ public class DataVisualizerApp extends Application implements Serializable{
         
         Button runButton = new Button("Run");runButton.setDefaultButton(true);
         runButton.setDisable(true);runButton.setOpacity(0);
-        runButton.setOnAction(e -> alert("Error" , "", "This function isn't supported yet :("));
+        runButton.setOnAction(e -> {
+            runButton.setDisable(true);
+            Algorithm selected = null;
+            for(Algorithm algo : algorithms){
+                if (algo.getName().equals(selectedAlgoName))
+                    selected = algo;
+            }//Selected should never be null
+            AlgorithmThread runner = new AlgorithmThread(selected, data);
+            ////////////////////////////////////////////////////////////
+        });
         
         exitButton.setOnAction(e -> {
             if(!data.getIsSaved()){
@@ -129,6 +140,8 @@ public class DataVisualizerApp extends Application implements Serializable{
         group.selectedToggleProperty().addListener(e -> {
             if(group.getSelectedToggle() != null){
                 runButton.setDisable(false);runButton.setOpacity(100);
+                selectedAlgoName = group.getSelectedToggle().toString();
+                selectedAlgoName = selectedAlgoName.substring(selectedAlgoName.indexOf(39)+1, selectedAlgoName.length()-1);
             } else {
                 runButton.setDisable(true);runButton.setOpacity(0);
             }
@@ -221,10 +234,7 @@ public class DataVisualizerApp extends Application implements Serializable{
             in.close();
             file.close();
         } catch(IOException ex){//There is no saved info on runConfigs
-            algos.add(new Algorithm("Classification A", AlgorithmType.Classification));
-            algos.add(new Algorithm("Classification B", AlgorithmType.Classification));
-            algos.add(new Algorithm("Clustering A", AlgorithmType.Clustering));
-            algos.add(new Algorithm("Clustering B", AlgorithmType.Clustering));
+            algos.add(new Algorithm("Random Classifier", AlgorithmType.Classification));
         } catch(ClassNotFoundException m){System.out.println("This should never be visible");}
         
         return algos;

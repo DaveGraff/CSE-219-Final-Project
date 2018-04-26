@@ -89,6 +89,7 @@ public class Algorithm implements Serializable{
         }
         
         RadioButton cont = new RadioButton("Continuous?");
+        cont.setSelected(config.getContinuous());
         
         columns.setSpacing(5);
         columns.setPadding(new Insets(10));

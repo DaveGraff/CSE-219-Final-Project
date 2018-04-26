@@ -11,14 +11,25 @@ import java.io.Serializable;
  *
  * @author HP
  */
-public class AlgorithmThread implements Serializable{
+public class AlgorithmThread implements Serializable, Runnable{
     private Algorithm algo;
     private DataState data;
-    private MyChart chart;
+    private int max;//Subtract from last run
+    //private MyChart chart;
     
-    AlgorithmThread(Algorithm a, DataState d, MyChart c){
+    AlgorithmThread(Algorithm a, DataState d/*, MyChart c*/){
         algo = a;
         data = d;
-        chart = c;
+        max = a.getConfig().getMaxIter();
+        //chart = c;
+    }
+
+    @Override
+    public void run() {
+        if(algo.getConfig().getContinuous()){
+            //update all the time fam
+        } else {
+            int interval = algo.getConfig().getUpdateInterval();
+        }
     }
 }
