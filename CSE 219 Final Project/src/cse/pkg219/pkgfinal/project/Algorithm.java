@@ -26,6 +26,7 @@ public class Algorithm implements Serializable{
     private String name;
     private AlgorithmType type;
     private RunConfig config;
+    private boolean isRunning = false;
     
     private TextField iter;
     private TextField clusterNum;
@@ -61,6 +62,14 @@ public class Algorithm implements Serializable{
     
     public RunConfig getConfig(){
         return config;
+    }
+    
+    public void setRunning(boolean b){
+        isRunning = b;
+    }
+    
+    public boolean getIsRunning(){
+        return isRunning;
     }
     
     /**

@@ -247,25 +247,7 @@ public class DataVisualizerApp extends Application implements Serializable{
                     runner.run();
                     algoIsRunning = false;
                     runButton.setDisable(false);
-                    /*for(int i = 0; i < selected.getConfig().getMaxIter(); i++){
-                        Random RAND = new Random();
-                        int xCoefficient =  new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
-                        int yCoefficient = 10;
-                        int constant = RAND.nextInt(11);
-                        
-                        newData.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter)));
-                        newData.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter + 1)));
-                        
-                        if(i % selected.getConfig().getUpdateInterval() == 0){
-                            chart.processData(newData);
-                            try {
-                                wait(300);
-                            } catch (InterruptedException ex) {}
-                        }
-                    }*/
-                    //runThings(selected, newData, bounds, chart);
                 } else {
-                    
                     leftSide.getChildren().add(cont);
                     cont.setOnAction(q -> {
                         algoIsRunning = true;

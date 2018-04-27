@@ -38,7 +38,7 @@ public class AlgorithmThread implements Serializable, Runnable{
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         int interval = algo.getConfig().getUpdateInterval();
         if(algo.getConfig().getContinuous()){
             int iter = algo.getConfig().getMaxIter();
@@ -51,9 +51,9 @@ public class AlgorithmThread implements Serializable, Runnable{
                 data.add(new DataPoint((-yCoefficient*bounds[2] - constant)/xCoefficient, (-xCoefficient * bounds[0] - constant)/yCoefficient, "Random"+i, "R"+(2*i)));
                 data.add(new DataPoint((-yCoefficient*bounds[3] - constant)/xCoefficient, (-xCoefficient * bounds[1] - constant)/yCoefficient, "Random"+i, "R"+(2*i + 1)));
                 if(i % interval == 0){
-                    chart.processData(data);
                     try {
-                        wait(300);
+                        Thread.sleep(300);
+                        chart.processData(data);
                     } catch (InterruptedException ex) {}//should *never* happen
                 }
             }
