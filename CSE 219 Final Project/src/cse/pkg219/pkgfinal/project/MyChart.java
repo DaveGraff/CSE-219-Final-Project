@@ -60,19 +60,21 @@ public class MyChart implements Serializable{
     
     public void processData(ArrayList<DataPoint> data){
         chart.getData().clear();
-        ArrayList<String> series = new ArrayList<>();
-        ArrayList<XYChart.Series> meh = new ArrayList<>();
-        data.forEach((point) -> {
-            XYChart.Series temp;
-            if(!series.contains(point.getSeries())){
-                series.add(point.getSeries());
-                temp = new XYChart.Series();
-                temp.setName(point.getSeries());
-                meh.add(temp);
-            } else 
-                temp = meh.get(series.indexOf(point.getSeries()));
-            temp.getData().add(new XYChart.Data(point.getX(), point.getY()));
-        });
-        meh.forEach(e -> chart.getData().add(e));
+        if(data != null){
+            ArrayList<String> series = new ArrayList<>();
+            ArrayList<XYChart.Series> meh = new ArrayList<>();
+            data.forEach((point) -> {
+                XYChart.Series temp;
+                if(!series.contains(point.getSeries())){
+                    series.add(point.getSeries());
+                    temp = new XYChart.Series();
+                    temp.setName(point.getSeries());
+                    meh.add(temp);
+                } else 
+                    temp = meh.get(series.indexOf(point.getSeries()));
+                temp.getData().add(new XYChart.Data(point.getX(), point.getY()));
+            });
+            meh.forEach(e -> chart.getData().add(e));
+        }
     }
 }

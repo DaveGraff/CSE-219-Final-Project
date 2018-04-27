@@ -43,10 +43,11 @@ public class AlgorithmThread implements Serializable, Runnable{
         if(algo.getConfig().getContinuous()){
             int iter = algo.getConfig().getMaxIter();
             for(int i = 1; i < iter + 1; i++){
+                System.out.println(i);
                 Random RAND = new Random();
                 int xCoefficient =  new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
                 int yCoefficient = 10;
-                int constant     = RAND.nextInt(11);
+                int constant = RAND.nextInt(11);
                 
                 data.add(new DataPoint((-yCoefficient*bounds[2] - constant)/xCoefficient, (-xCoefficient * bounds[0] - constant)/yCoefficient, "Random"+i, "R"+(2*i)));
                 data.add(new DataPoint((-yCoefficient*bounds[3] - constant)/xCoefficient, (-xCoefficient * bounds[1] - constant)/yCoefficient, "Random"+i, "R"+(2*i + 1)));
@@ -54,7 +55,7 @@ public class AlgorithmThread implements Serializable, Runnable{
                     chart.processData(data);
                     System.out.println("I fired");
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(1000);
                     } catch (InterruptedException ex) {}//should *never* happen
                 }
             }

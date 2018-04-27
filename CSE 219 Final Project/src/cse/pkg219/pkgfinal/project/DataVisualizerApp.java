@@ -45,9 +45,10 @@ public class DataVisualizerApp extends Application implements Serializable{
     private boolean disabledText = true;
     private ArrayList<Algorithm> algorithms = loadAlgorithms();
     
+    boolean areYouSure;
     boolean algoIsRunning = false;
     Algorithm selected = null;
-    int counter = 0;
+    int counter = 1;
     private String selectedAlgoName = "";
     @Override
     public void start(Stage primaryStage) {
@@ -57,6 +58,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         Button saveGraphButton = new Button("Save Graph"); saveGraphButton.setDisable(true);
         Button exitButton = new Button("Exit");
         ToolBar toolbar = new ToolBar(newButton, loadButton, saveButton, saveGraphButton, exitButton);
+        Button cont = new Button("Continue");//For running the algo
         
         MyChart chart = new MyChart();
         Button runButton = new Button("Run");runButton.setDefaultButton(true);
@@ -64,13 +66,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         
         saveGraphButton.setOnAction(e -> chart.saveGraph());
         
-        exitButton.setOnAction(e -> {
-            if(!data.getIsSaved()){
-                data.checkForSave();
-            }
-            if(data.getIsSaved())
-                System.exit(0);
-        });
+        
         
         ComboBox algoOptions = new ComboBox(); 
         algoOptions.setDisable(true);algoOptions.setOpacity(0);//disabled until later
@@ -152,22 +148,44 @@ public class DataVisualizerApp extends Application implements Serializable{
         VBox root = new VBox(toolbar, sides);
         Scene scene = new Scene(root, 800, 450);
         
+        exitButton.setOnAction(e -> {
+            if(algoIsRunning){
+                algoIsRunning = !areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
+            }
+            if(!algoIsRunning){
+                leftSide.getChildren().remove(cont);
+            chart.processData(null);
+                if(!data.getIsSaved()){
+                    data.checkForSave();
+                }
+                if(data.getIsSaved())
+                    System.exit(0);
+            }
+        });
+        
         saveButton.setOnAction(e -> data.handleSaveRequest(textbox.getText()));
         loadButton.setOnAction(e -> {
-            try{
-                algoOptions.getItems().remove("Classification");
-                String [] temp = data.handleLoadRequest();
-                l1.setText(temp[0]);l2.setText(temp[1]);
-                l3.setText(temp[2]);l4.setText(temp[3]);
-                textbox.setText(data.getData());
-                saveButton.setDisable(true);
-                data.setIsSaved(true);algoOptions.getSelectionModel().selectFirst();
-                runButton.setDisable(true);runButton.setOpacity(0);
-                algoOptions.setDisable(false);
-                algoOptions.setOpacity(100);
-                if(supportsClassification())
-                    algoOptions.getItems().add("Classification");
-            } catch (IndexOutOfBoundsException f){}
+            if(algoIsRunning){
+                algoIsRunning = !areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
+            }
+            if(!algoIsRunning){
+                leftSide.getChildren().remove(cont);
+                chart.processData(null);
+                try{
+                    algoOptions.getItems().remove("Classification");
+                    String [] temp = data.handleLoadRequest();
+                    l1.setText(temp[0]);l2.setText(temp[1]);
+                    l3.setText(temp[2]);l4.setText(temp[3]);
+                    textbox.setText(data.getData());
+                    saveButton.setDisable(true);
+                    data.setIsSaved(true);algoOptions.getSelectionModel().selectFirst();
+                    runButton.setDisable(true);runButton.setOpacity(0);
+                    algoOptions.setDisable(false);
+                    algoOptions.setOpacity(100);
+                    if(supportsClassification())
+                        algoOptions.getItems().add("Classification");
+                } catch (IndexOutOfBoundsException f){}
+            }
         });
         
         textbox.textProperty().addListener(e -> {
@@ -177,66 +195,83 @@ public class DataVisualizerApp extends Application implements Serializable{
         });
         
         newButton.setOnAction(e -> {
-            boolean worked = data.handleNewRequest();
-            if (worked){
-                textbox.setText(data.getData());
-                saveButton.setDisable(true);
-                data.setIsSaved(true);
-                disabledText = false;
-                textbox.setDisable(disabledText);
-                l1.setText("");l2.setText("");
-                l3.setText("");l4.setText("");
-                algoOptions.setDisable(true);
-                algoOptions.setOpacity(0);
-                algoOptions.getSelectionModel().selectFirst();
-                runButton.setDisable(true);runButton.setOpacity(0);
+            if(algoIsRunning){
+                algoIsRunning = !areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
+            }
+            if(!algoIsRunning){
+                leftSide.getChildren().remove(cont);
+                chart.processData(null);
+                boolean worked = data.handleNewRequest();
+                if (worked){
+                    textbox.setText(data.getData());
+                    saveButton.setDisable(true);
+                    data.setIsSaved(true);
+                    disabledText = false;
+                    textbox.setDisable(disabledText);
+                    l1.setText("");l2.setText("");
+                    l3.setText("");l4.setText("");
+                    algoOptions.setDisable(true);
+                    algoOptions.setOpacity(0);
+                    algoOptions.getSelectionModel().selectFirst();
+                    runButton.setDisable(true);runButton.setOpacity(0);
+                }
             }
         });
         
         runButton.setOnAction(e -> {
-            runButton.setDisable(true);
-            
             for(Algorithm algo : algorithms){
                 if (algo.getName().equals(selectedAlgoName))
                     selected = algo;
             }//Selected should never be null
-            ArrayList<DataPoint> newData = interpretData(data.getData());
-            if(selected.getConfig().getContinuous()){
-                AlgorithmThread runner = new AlgorithmThread(selected, newData, chart);
-                runner.run();
+            
+            if(selected.getConfig().getMaxIter() == 0 || selected.getConfig().getUpdateInterval() == 0
+                    || (selected.getConfig().getClusterNum() == 0 && selected.getType() == AlgorithmType.Clustering)){
+                alert("Error", "Configuration Error", "Please set a run configuration");
             } else {
-                Button cont = new Button("Continue");
-                
-                double[] bounds = new double[4];//min x, max x, min y, max y
-                newData.forEach(f ->{
-                    if(f.getX() < bounds[0])
-                        bounds[0] = f.getX();
-                    if(f.getX() > bounds[1])
-                        bounds[1] = f.getX();
-                    if(f.getY() < bounds[2])
-                        bounds[2] = f.getY();
-                    if(f.getY() > bounds[3])
-                        bounds[3] = f.getY();
-                });
-                leftSide.getChildren().add(cont);
-                cont.setOnAction(q -> {
-                    cont.setDisable(true);
-                    Random RAND = new Random();
-                    int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
-                    int yCoefficient = 10;
-                    int constant = RAND.nextInt(11);
+                runButton.setDisable(true);
+                ArrayList<DataPoint> newData = interpretData(data.getData());
+                if(selected.getConfig().getContinuous()){
+                    AlgorithmThread runner = new AlgorithmThread(selected, newData, chart);
+                    algoIsRunning = true;
+                    runner.run();
+                    algoIsRunning = false;
+                    runButton.setDisable(false);
+                } else {
+                    double[] bounds = new double[4];//min x, max x, min y, max y
+                    newData.forEach(f ->{
+                        if(f.getX() < bounds[0])
+                            bounds[0] = f.getX();
+                        if(f.getX() > bounds[1])
+                            bounds[1] = f.getX();
+                        if(f.getY() < bounds[2])
+                            bounds[2] = f.getY();
+                        if(f.getY() > bounds[3])
+                            bounds[3] = f.getY();
+                    });
+                    leftSide.getChildren().add(cont);
+                    cont.setOnAction(q -> {
+                        algoIsRunning = true;
+                        cont.setDisable(true);
+                        Random RAND = new Random();
+                        int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
+                        int yCoefficient = 10;
+                        int constant = RAND.nextInt(11);
 
-                    newData.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter)));
-                    newData.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter + 1)));
-                    counter++;
-                    if (counter * selected.getConfig().getUpdateInterval() > selected.getConfig().getMaxIter()){
-                        leftSide.getChildren().remove(cont);
-                    }
-                    chart.processData(newData);
-                    cont.setDisable(false);
-                    saveGraphButton.setDisable(false);
-                });
-                cont.fire();
+                        newData.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter)));
+                        newData.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter + 1)));
+                        counter++;
+                        if (counter * selected.getConfig().getUpdateInterval() >= selected.getConfig().getMaxIter()){
+                            leftSide.getChildren().remove(cont);
+                            algoIsRunning = false;
+                            runButton.setDisable(false);
+                            counter = 1;
+                        }
+                        chart.processData(newData);
+                        cont.setDisable(false);
+                        saveGraphButton.setDisable(false);
+                    });
+                    cont.fire();
+                }
             }
         });
         
@@ -295,6 +330,40 @@ public class DataVisualizerApp extends Application implements Serializable{
             } catch (Exception e) {}
         });
         return interpreted;
+    }
+    /**
+     * Discerns how the user wants to deal with
+     * a set situation
+     * 
+     * @param title The title of the check
+     * @param explanation The reason for the check
+     * @return 
+     */
+    public boolean areYouSure(String title, String explanation){
+        Stage newStage =  new Stage();
+        newStage.setTitle(title);
+        Label explanationL = new Label(explanation);
+        Button cont = new Button("Continue"); cont.setDefaultButton(true);
+        Button cancel = new Button("Cancel"); cancel.setCancelButton(true);
+        HBox buttons = new HBox(cont, cancel); buttons.setSpacing(5);
+        VBox main = new VBox(explanationL, buttons);
+        
+        main.setSpacing(5);
+        main.setPadding(new Insets(10));
+        
+        cont.setOnAction(e -> {
+            areYouSure = true;
+            newStage.close();
+        });
+        cancel.setOnAction(e -> {
+            areYouSure = false;
+            newStage.close();
+        });
+        
+        Scene scene = new Scene(main);
+        newStage.setScene(scene);
+        newStage.showAndWait();
+        return areYouSure;
     }
     
     /**Checks if the current data meets the requirements
