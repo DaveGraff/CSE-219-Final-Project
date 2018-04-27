@@ -47,7 +47,7 @@ public class MyChart implements Serializable{
         saver.setInitialFileName("myCoolGraph");
         saver.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Files", "*.png"));
         File file = saver.showSaveDialog(pStage);
-        WritableImage image = container.snapshot(new SnapshotParameters(), null);
+        WritableImage image = chart.snapshot(new SnapshotParameters(), null);
         try{
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
         } catch(IOException | IllegalArgumentException e){

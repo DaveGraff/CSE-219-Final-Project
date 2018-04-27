@@ -20,8 +20,8 @@ public class RunConfig implements Serializable{
      * The default run configuration for any algorithm
      */
     RunConfig(){
-        maxIter = 100;
-        updateInterval = 5;
+        maxIter = 5;
+        updateInterval = 1;
         continuous = false;
         clusterNum = 2;
     }
