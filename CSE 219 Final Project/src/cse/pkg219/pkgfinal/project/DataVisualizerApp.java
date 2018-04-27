@@ -48,7 +48,7 @@ public class DataVisualizerApp extends Application implements Serializable{
     boolean areYouSure;
     boolean algoIsRunning = false;
     Algorithm selected = null;
-    int counter = 1;
+    int counter = 0;
     private String selectedAlgoName = "";
     @Override
     public void start(Stage primaryStage) {
@@ -230,14 +230,7 @@ public class DataVisualizerApp extends Application implements Serializable{
             } else {
                 runButton.setDisable(true);
                 ArrayList<DataPoint> newData = interpretData(data.getData());
-                if(selected.getConfig().getContinuous()){
-                    AlgorithmThread runner = new AlgorithmThread(selected, newData, chart);
-                    algoIsRunning = true;
-                    runner.run();
-                    algoIsRunning = false;
-                    runButton.setDisable(false);
-                } else {
-                    double[] bounds = new double[4];//min x, max x, min y, max y
+                double[] bounds = new double[4];//min x, max x, min y, max y
                     newData.forEach(f ->{
                         if(f.getX() < bounds[0])
                             bounds[0] = f.getX();
@@ -248,6 +241,31 @@ public class DataVisualizerApp extends Application implements Serializable{
                         if(f.getY() > bounds[3])
                             bounds[3] = f.getY();
                     });
+                if(selected.getConfig().getContinuous()){
+                    AlgorithmThread runner = new AlgorithmThread(selected, newData, chart);
+                    algoIsRunning = true;
+                    runner.run();
+                    algoIsRunning = false;
+                    runButton.setDisable(false);
+                    /*for(int i = 0; i < selected.getConfig().getMaxIter(); i++){
+                        Random RAND = new Random();
+                        int xCoefficient =  new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
+                        int yCoefficient = 10;
+                        int constant = RAND.nextInt(11);
+                        
+                        newData.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter)));
+                        newData.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter + 1)));
+                        
+                        if(i % selected.getConfig().getUpdateInterval() == 0){
+                            chart.processData(newData);
+                            try {
+                                wait(300);
+                            } catch (InterruptedException ex) {}
+                        }
+                    }*/
+                    //runThings(selected, newData, bounds, chart);
+                } else {
+                    
                     leftSide.getChildren().add(cont);
                     cont.setOnAction(q -> {
                         algoIsRunning = true;
@@ -256,15 +274,15 @@ public class DataVisualizerApp extends Application implements Serializable{
                         int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
                         int yCoefficient = 10;
                         int constant = RAND.nextInt(11);
-
-                        newData.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter)));
-                        newData.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + counter, "R" + (2 * counter + 1)));
+                        int thing = counter + 1;
+                        newData.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter)));
+                        newData.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter + 1)));
                         counter++;
                         if (counter * selected.getConfig().getUpdateInterval() >= selected.getConfig().getMaxIter()){
                             leftSide.getChildren().remove(cont);
                             algoIsRunning = false;
                             runButton.setDisable(false);
-                            counter = 1;
+                            counter = 0;
                         }
                         chart.processData(newData);
                         cont.setDisable(false);
