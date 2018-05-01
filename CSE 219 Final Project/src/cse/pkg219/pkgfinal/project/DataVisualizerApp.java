@@ -243,8 +243,9 @@ public class DataVisualizerApp extends Application implements Serializable{
                     });
                 if(selected.getConfig().getContinuous()){
                     AlgorithmThread runner = new AlgorithmThread(selected, newData, chart);
+                    Thread t = new Thread(runner);
                     algoIsRunning = true;
-                    runner.run();
+                    t.start();
                     algoIsRunning = false;
                     runButton.setDisable(false);
                 } else {

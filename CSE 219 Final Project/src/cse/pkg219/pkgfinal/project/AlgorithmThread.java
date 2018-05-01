@@ -8,6 +8,7 @@ package cse.pkg219.pkgfinal.project;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
+import javafx.application.Platform;
 
 /**
  *
@@ -52,8 +53,9 @@ public class AlgorithmThread implements Serializable, Runnable{
                 data.add(new DataPoint((-yCoefficient*bounds[3] - constant)/xCoefficient, (-xCoefficient * bounds[1] - constant)/yCoefficient, "Random"+i, "R"+(2*i + 1)));
                 if(i % interval == 0){
                     try {
-                        Thread.sleep(300);
-                        chart.processData(data);
+                        Thread.sleep(1000);
+                        Platform.runLater(() -> chart.processData(data));
+                        
                     } catch (InterruptedException ex) {}//should *never* happen
                 }
             }
