@@ -21,21 +21,12 @@ public class AlgorithmThread implements Serializable, Runnable{
     private MyChart chart;
     private double[] bounds = new double[4];//min x, max x, min y, max y
     
-    AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c){
+    AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, double[] b){
         algo = a;
         data = d;
         max = a.getConfig().getMaxIter();
         chart = c;
-        data.forEach(e ->{
-            if(e.getX() < bounds[0])
-                bounds[0] = e.getX();
-            if(e.getX() > bounds[1])
-                bounds[1] = e.getX();
-            if(e.getY() < bounds[2])
-                bounds[2] = e.getY();
-            if(e.getY() > bounds[3])
-                bounds[3] = e.getY();
-        });
+        bounds = b;
     }
 
     @Override

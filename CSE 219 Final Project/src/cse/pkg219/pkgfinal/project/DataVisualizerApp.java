@@ -50,6 +50,7 @@ public class DataVisualizerApp extends Application implements Serializable{
     Algorithm selected = null;
     int counter = 0;
     private String selectedAlgoName = "";
+    ArrayList<DataPoint> newData = null;
     @Override
     public void start(Stage primaryStage) {
         Button newButton = new Button("New");
@@ -123,9 +124,12 @@ public class DataVisualizerApp extends Application implements Serializable{
                 algoOptions.setOpacity(100);
                 if(supportsClassification())
                     algoOptions.getItems().add("Classification");
+                newData = interpretData(data.getData());
+                chart.processData(newData);
             } else{
                 algoOptions.setDisable(true);
                 algoOptions.setOpacity(0);
+                chart.processData(null);
             }
         });
         
@@ -154,11 +158,10 @@ public class DataVisualizerApp extends Application implements Serializable{
             }
             if(!algoIsRunning){
                 leftSide.getChildren().remove(cont);
-            chart.processData(null);
                 if(!data.getIsSaved()){
                     data.checkForSave();
                 }
-                if(data.getIsSaved())
+                if(data.getIsSaved() || data.getData().equals(""))
                     System.exit(0);
             }
         });
@@ -184,6 +187,8 @@ public class DataVisualizerApp extends Application implements Serializable{
                     algoOptions.setOpacity(100);
                     if(supportsClassification())
                         algoOptions.getItems().add("Classification");
+                    newData = interpretData(data.getData());
+                    chart.processData(newData);
                 } catch (IndexOutOfBoundsException f){}
             }
         });
@@ -229,7 +234,7 @@ public class DataVisualizerApp extends Application implements Serializable{
                 alert("Error", "Configuration Error", "Please set a run configuration");
             } else {
                 runButton.setDisable(true);
-                ArrayList<DataPoint> newData = interpretData(data.getData());
+                //ArrayList<DataPoint> newData = interpretData(data.getData());
                 double[] bounds = new double[4];//min x, max x, min y, max y
                     newData.forEach(f ->{
                         if(f.getX() < bounds[0])
@@ -242,7 +247,7 @@ public class DataVisualizerApp extends Application implements Serializable{
                             bounds[3] = f.getY();
                     });
                 if(selected.getConfig().getContinuous()){
-                    AlgorithmThread runner = new AlgorithmThread(selected, newData, chart);
+                    AlgorithmThread runner = new AlgorithmThread(selected, newData, chart, bounds);
                     Thread t = new Thread(runner);
                     algoIsRunning = true;
                     t.start();
