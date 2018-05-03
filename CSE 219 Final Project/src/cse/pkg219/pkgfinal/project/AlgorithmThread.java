@@ -9,24 +9,51 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 import javafx.application.Platform;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 
 /**
  *
  * @author HP
  */
-public class AlgorithmThread implements Serializable, Runnable{
+public class AlgorithmThread extends Thread implements Serializable{
     private Algorithm algo;
     private ArrayList<DataPoint> data;
     private int max;//Subtract from last run
     private MyChart chart;
     private double[] bounds = new double[4];//min x, max x, min y, max y
+    private Button run;
+    private HBox runLine;
+    private int counter = 1;
     
-    AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, double[] b){
+    AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, Button r, HBox h){
         algo = a;
         data = d;
         max = a.getConfig().getMaxIter();
         chart = c;
-        bounds = b;
+        run = r;
+        runLine = h;
+        data.forEach(f -> {
+            if (f.getX() < bounds[0]) {
+                bounds[0] = f.getX();
+            } if (f.getX() > bounds[1]) {
+                bounds[1] = f.getX();
+            } if (f.getY() < bounds[2]) {
+                bounds[2] = f.getY();
+            } if (f.getY() > bounds[3]) {
+                bounds[3] = f.getY();
+            }
+        });
+    }
+    
+    public void addData() {
+        Random RAND = new Random();
+        int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
+        int yCoefficient = 10;
+        int constant = RAND.nextInt(11);
+        int thing = counter;
+        data.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter)));
+        data.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter + 1)));
     }
 
     @Override
@@ -34,26 +61,40 @@ public class AlgorithmThread implements Serializable, Runnable{
         int interval = algo.getConfig().getUpdateInterval();
         if(algo.getConfig().getContinuous()){
             int iter = algo.getConfig().getMaxIter();
-            for(int i = 1; i < iter + 1; i++){
-                Random RAND = new Random();
-                int xCoefficient =  new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
-                int yCoefficient = 10;
-                int constant = RAND.nextInt(11);
-                
-                data.add(new DataPoint((-yCoefficient*bounds[2] - constant)/xCoefficient, (-xCoefficient * bounds[0] - constant)/yCoefficient, "Random"+i, "R"+(2*i)));
-                data.add(new DataPoint((-yCoefficient*bounds[3] - constant)/xCoefficient, (-xCoefficient * bounds[1] - constant)/yCoefficient, "Random"+i, "R"+(2*i + 1)));
+            int i;
+            for(i = 1; i < iter + 1; i++){
+                counter = i;
+                addData();
                 if(i % interval == 0){
                     try {
-                        Thread.sleep(1000);
                         Platform.runLater(() -> chart.processData(data));
-                        
+                        Thread.sleep(1200);
                     } catch (InterruptedException ex) {}//should *never* happen
                 }
             }
-            chart.processData(data);
-            //update all the time fam
+            if (i * interval < iter)
+                Platform.runLater(() -> chart.processData(data));
         } else {
-            
+            Button cont = new Button("Continue");
+            Platform.runLater(() -> {
+                runLine.getChildren().clear();
+                runLine.getChildren().addAll(run, cont);
+            });
+            cont.setOnAction(q -> {
+                Platform.runLater(() -> cont.setDisable(true));
+                addData();
+                counter++;
+                if (counter * algo.getConfig().getUpdateInterval() >= algo.getConfig().getMaxIter()) {
+                    Platform.runLater(() -> {
+                        runLine.getChildren().remove(cont);
+                        run.setDisable(false);
+                    });
+                    counter = 1;
+                }
+                Platform.runLater(() -> chart.processData(data));
+                Platform.runLater(() -> cont.setDisable(false));
+            });
+            cont.fire();
         }
     }
 }
