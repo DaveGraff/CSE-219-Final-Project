@@ -18,7 +18,7 @@ import javafx.scene.layout.HBox;
  */
 public class AlgorithmThread extends Thread implements Serializable{
     private Algorithm algo;
-    private ArrayList<DataPoint> data;
+    private ArrayList<DataPoint> data = new ArrayList<>();
     private int max;//Subtract from last run
     private MyChart chart;
     private double[] bounds = new double[4];//min x, max x, min y, max y
@@ -30,7 +30,7 @@ public class AlgorithmThread extends Thread implements Serializable{
     
     AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, Button r, HBox h){
         algo = a;
-        data = d;
+        d.forEach(e -> data.add(e));
         max = a.getConfig().getMaxIter();
         chart = c;
         run = r;
