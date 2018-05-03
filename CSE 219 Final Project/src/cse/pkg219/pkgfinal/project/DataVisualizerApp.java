@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -45,7 +46,6 @@ public class DataVisualizerApp extends Application implements Serializable{
     private ArrayList<Algorithm> algorithms = loadAlgorithms();
     
     boolean areYouSure;
-    boolean algoIsRunning = false;
     AlgorithmThread runner = null;
     Algorithm selected = null;
     private String selectedAlgoName = "";
@@ -151,10 +151,14 @@ public class DataVisualizerApp extends Application implements Serializable{
         });
         
         exitButton.setOnAction(e -> {
-            if(algoIsRunning){
-                algoIsRunning = !areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
-            }
-            if(!algoIsRunning){
+            boolean checked = false;
+            if(runner != null)
+                if(runner.isAlive())
+                    checked = areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
+            
+            if(checked){
+                if(runner != null)
+                    runner.stopper();
                 leftSide.getChildren().remove(cont);
                 if(!data.getIsSaved()){
                     data.checkForSave();
@@ -166,10 +170,14 @@ public class DataVisualizerApp extends Application implements Serializable{
         
         saveButton.setOnAction(e -> data.handleSaveRequest(textbox.getText()));
         loadButton.setOnAction(e -> {
-            if(algoIsRunning){
-                algoIsRunning = !areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
-            }
-            if(!algoIsRunning){
+            boolean checked = true;
+            if(runner != null)
+                if(runner.isAlive())
+                    checked = areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
+            
+            if(checked){
+                if(runner != null)
+                    runner.stopper();
                 leftSide.getChildren().remove(cont);
                 chart.processData(null);
                 try{
@@ -201,9 +209,11 @@ public class DataVisualizerApp extends Application implements Serializable{
             boolean checked = true;
             if(runner != null)
                 if(runner.isAlive() || runner.isInterrupted())
-                    checked = !areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
+                    checked = areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
             
             if(checked){
+                if(runner != null)
+                    runner.stopper();
                 leftSide.getChildren().remove(cont);
                 chart.processData(null);
                 boolean worked = data.handleNewRequest();

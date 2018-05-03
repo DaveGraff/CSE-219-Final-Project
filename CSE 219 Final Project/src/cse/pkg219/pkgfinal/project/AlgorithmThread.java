@@ -26,6 +26,8 @@ public class AlgorithmThread extends Thread implements Serializable{
     private HBox runLine;
     private int counter = 1;
     
+    private volatile boolean stop = false;
+    
     AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, Button r, HBox h){
         algo = a;
         data = d;
@@ -55,25 +57,35 @@ public class AlgorithmThread extends Thread implements Serializable{
         data.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter)));
         data.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter + 1)));
     }
-
+    
+    public void stopper(){
+        stop = true;
+    }
+    
     @Override
     public void run() {
         int interval = algo.getConfig().getUpdateInterval();
-        if(algo.getConfig().getContinuous()){
+        if (algo.getConfig().getContinuous()) {
             int iter = algo.getConfig().getMaxIter();
             int i;
-            for(i = 1; i < iter + 1; i++){
-                counter = i;
-                addData();
-                if(i % interval == 0){
-                    try {
-                        Platform.runLater(() -> chart.processData(data));
-                        Thread.sleep(1200);
-                    } catch (InterruptedException ex) {}//should *never* happen
+            for (i = 1; i < iter + 1; i++) {
+                if (!stop) {
+                    counter = i;
+                    addData();
+                    if (i % interval == 0) {
+                        try {
+                            Platform.runLater(() -> chart.processData(data));
+                            Thread.sleep(1200);
+                        } catch (InterruptedException ex) {
+                        }//should *never* happen
+                    }
+                } else {
+                    i = iter + 1;
                 }
             }
-            if (i * interval < iter)
+            if (i * interval < iter && !stop) {
                 Platform.runLater(() -> chart.processData(data));
+            }
         } else {
             Button cont = new Button("Continue");
             Platform.runLater(() -> {
