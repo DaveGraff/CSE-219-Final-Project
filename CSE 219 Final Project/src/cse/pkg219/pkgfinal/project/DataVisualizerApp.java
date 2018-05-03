@@ -229,8 +229,8 @@ public class DataVisualizerApp extends Application implements Serializable{
                     selected = algo;
             }//Selected should never be null
             
-            if(selected.getConfig().getMaxIter() == 0 || selected.getConfig().getUpdateInterval() == 0
-                    || (selected.getConfig().getClusterNum() == 0 && selected.getType() == AlgorithmType.Clustering)){
+            if(selected.getConfig().getMaxIter() < 1 || selected.getConfig().getUpdateInterval() < 1
+                    || (selected.getConfig().getClusterNum() < 1 && selected.getType() == AlgorithmType.Clustering)){
                 alert("Error", "Configuration Error", "Please set a run configuration");
             } else {
                 runButton.setDisable(true);
