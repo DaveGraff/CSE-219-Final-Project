@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -111,7 +110,8 @@ public class DataVisualizerApp extends Application implements Serializable{
         
         group.selectedToggleProperty().addListener(e -> {
             if(group.getSelectedToggle() != null){
-                leftSide.getChildren().add(runLine);
+                if(!leftSide.getChildren().contains(runLine))
+                    leftSide.getChildren().add(runLine);
                 selectedAlgoName = group.getSelectedToggle().toString();
                 selectedAlgoName = selectedAlgoName.substring(selectedAlgoName.indexOf(39)+1, selectedAlgoName.length()-1);
             } else {
@@ -151,7 +151,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         });
         
         exitButton.setOnAction(e -> {
-            boolean checked = false;
+            boolean checked = true;
             if(runner != null)
                 if(runner.isAlive())
                     checked = areYouSure("Warning!","There is an algorithm currently running. \n Any generated data will be lost");
@@ -244,7 +244,7 @@ public class DataVisualizerApp extends Application implements Serializable{
                 alert("Error", "Configuration Error", "Please set a run configuration");
             } else {
                 runButton.setDisable(true);
-                runner = new AlgorithmThread(selected, newData, chart, runButton, runLine);
+                runner = new AlgorithmThread(selected, newData, chart, runButton, runLine, saveGraphButton);
                 runner.start();
                 runButton.setDisable(false);
             }
@@ -288,6 +288,8 @@ public class DataVisualizerApp extends Application implements Serializable{
             file.close();
         } catch(IOException ex){//There is no saved info on runConfigs
             algos.add(new Algorithm("Random Classifier", AlgorithmType.Classification));
+            algos.add(new Algorithm("Random Clusterer", AlgorithmType.Clustering));
+            algos.add(new Algorithm("K Means Clusterer", AlgorithmType.Clustering));
         } catch(ClassNotFoundException m){System.out.println("This should never be visible");}
         
         return algos;
@@ -377,7 +379,6 @@ public class DataVisualizerApp extends Application implements Serializable{
             out.close();
             file.close();     
         } catch(IOException ex){
-            //System.out.println("IOException is caught");
         }
     }
     

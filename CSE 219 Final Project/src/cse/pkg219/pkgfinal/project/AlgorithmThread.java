@@ -25,10 +25,11 @@ public class AlgorithmThread extends Thread implements Serializable{
     private Button run;
     private HBox runLine;
     private int counter = 1;
+    private Button saveGraph;
     
     private volatile boolean stop = false;
     
-    AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, Button r, HBox h){
+    AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, Button r, HBox h, Button s){
         algo = a;
         d.forEach(e -> data.add(e));
         max = a.getConfig().getMaxIter();
@@ -46,9 +47,10 @@ public class AlgorithmThread extends Thread implements Serializable{
                 bounds[3] = f.getY();
             }
         });
+        saveGraph = s;
     }
     
-    public void addData() {
+    public void randomClassifier() {
         Random RAND = new Random();
         int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
         int yCoefficient = 10;
@@ -58,6 +60,32 @@ public class AlgorithmThread extends Thread implements Serializable{
         data.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter + 1)));
     }
     
+    public void algoPicker(){
+        switch(algo.getName()){
+            case "Random Classifier": randomClassifier();
+            break;
+            case "Random Clusterer": randomClusterer();
+            break;
+            case "K Means Clusterer": System.out.println("K means");
+        }
+    }
+    
+    public void randomClusterer(){
+        ArrayList<String> forClustering = new ArrayList<>();
+        for(int i = 0; i < algo.getConfig().getClusterNum(); i++){
+            forClustering.add("Random"+i);
+        }
+        data.forEach(e -> {
+            int index = (int)(Math.random() * forClustering.size());
+            e.setSeries(forClustering.get(index));
+        });
+    }
+    
+    /**
+     * Sets the value of stop to false,
+     * making the thread stop after it
+     * finishes its immediate task
+     */
     public void stopper(){
         stop = true;
     }
@@ -66,12 +94,13 @@ public class AlgorithmThread extends Thread implements Serializable{
     public void run() {
         int interval = algo.getConfig().getUpdateInterval();
         if (algo.getConfig().getContinuous()) {
+            Platform.runLater(() -> saveGraph.setDisable(true));
             int iter = algo.getConfig().getMaxIter();
             int i;
             for (i = 1; i < iter + 1; i++) {
                 if (!stop) {
                     counter = i;
-                    addData();
+                    algoPicker();
                     if (i % interval == 0) {
                         try {
                             Platform.runLater(() -> chart.processData(data));
@@ -86,6 +115,7 @@ public class AlgorithmThread extends Thread implements Serializable{
             if (i * interval < iter && !stop) {
                 Platform.runLater(() -> chart.processData(data));
             }
+            Platform.runLater(() -> saveGraph.setDisable(false));
         } else {
             Button cont = new Button("Continue");
             Platform.runLater(() -> {
@@ -94,9 +124,10 @@ public class AlgorithmThread extends Thread implements Serializable{
             });
             cont.setOnAction(q -> {
                 Platform.runLater(() -> cont.setDisable(true));
-                addData();
+                Platform.runLater(() -> saveGraph.setDisable(true));
+                algoPicker();
                 counter++;
-                if (counter * algo.getConfig().getUpdateInterval() >= algo.getConfig().getMaxIter()) {
+                if (counter * algo.getConfig().getUpdateInterval() > algo.getConfig().getMaxIter()) {
                     Platform.runLater(() -> {
                         runLine.getChildren().remove(cont);
                         run.setDisable(false);
@@ -105,6 +136,7 @@ public class AlgorithmThread extends Thread implements Serializable{
                 }
                 Platform.runLater(() -> chart.processData(data));
                 Platform.runLater(() -> cont.setDisable(false));
+                Platform.runLater(() -> saveGraph.setDisable(false));
             });
             cont.fire();
         }

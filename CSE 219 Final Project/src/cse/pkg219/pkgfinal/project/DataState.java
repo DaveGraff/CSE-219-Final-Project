@@ -81,22 +81,27 @@ public class DataState implements Serializable{
             FileChooser saver = new FileChooser();
             saver.setInitialFileName("myCoolGraph");
             saver.getExtensionFilters().add(new FileChooser.ExtensionFilter("TSD Files", "*.tsd"));
+            if (!isSaved) {
+                file = saver.showSaveDialog(pStage);
+            }
             try {
-                if(!isSaved){
-                    file = saver.showSaveDialog(pStage);
-                }
-                FileWriter fileWriter;
-
-                fileWriter = new FileWriter(file);
-                fileWriter.write(data);
-                fileWriter.close();
-                if(file != null)
+                saveToFile();
+                if (file != null) {
                     isSaved = true;
-            } catch(NullPointerException e){//I should probably make this do something...
-            } catch (IOException ex) {}
+                }
+            } catch (NullPointerException e) {//I should probably make this do something...
+            } catch (IOException ex) {
+            }
         }
     }
     
+    public void saveToFile() throws IOException{
+        FileWriter fileWriter;
+        fileWriter = new FileWriter(file);
+        fileWriter.write(data);
+        fileWriter.close();
+    }
+
     /**
      * Checks for errors in the data
      * 
