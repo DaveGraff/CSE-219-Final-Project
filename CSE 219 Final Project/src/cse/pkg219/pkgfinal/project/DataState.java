@@ -38,10 +38,8 @@ public class DataState implements Serializable{
     
     private File file;
     private int line;
-    private ArrayList<String> lineNames;
     private boolean isWrong;
     private String[] loadedMetaData =  new String[4];//0 = # of instances, 1 = # of labels, 2 = label names, 3 = filePath
-    private ArrayList<String> labelList;
     DataState(String input){
         isSaved = true;
         data = input;
@@ -75,26 +73,33 @@ public class DataState implements Serializable{
      */
     public void handleSaveRequest(String text) {
         isWrong(text);
-        if(!isWrong){
-            data = text;
-            Stage pStage = new Stage();
-            FileChooser saver = new FileChooser();
-            saver.setInitialFileName("myCoolGraph");
-            saver.getExtensionFilters().add(new FileChooser.ExtensionFilter("TSD Files", "*.tsd"));
+        if (!isWrong) {
             if (!isSaved) {
-                file = saver.showSaveDialog(pStage);
-            }
-            try {
-                saveToFile();
-                if (file != null) {
-                    isSaved = true;
+                if (file == null) {
+                    data = text;
+                    Stage pStage = new Stage();
+                    FileChooser saver = new FileChooser();
+                    saver.setInitialFileName("myCoolGraph");
+                    saver.getExtensionFilters().add(new FileChooser.ExtensionFilter("TSD Files", "*.tsd"));
+                    file = saver.showSaveDialog(pStage);
                 }
-            } catch (NullPointerException e) {//I should probably make this do something...
-            } catch (IOException ex) {
+                try {
+                    saveToFile();
+                    if (file != null) {
+                        isSaved = true;
+                    }
+                } catch (NullPointerException e) {//I should probably make this do something...
+                } catch (IOException ex) {
+                }
             }
         }
     }
-    
+
+    /**
+     * Performs the actual save on the 
+     * selected file
+     * @throws IOException 
+     */
     public void saveToFile() throws IOException{
         FileWriter fileWriter;
         fileWriter = new FileWriter(file);
@@ -110,9 +115,9 @@ public class DataState implements Serializable{
      */
     public String[] isWrong(String text){
         isWrong = false;
-        lineNames = new ArrayList<>();
+        ArrayList<String> lineNames = new ArrayList<>();
         line = 1;
-        labelList = new ArrayList<>();
+        ArrayList<String> labelList = new ArrayList<>();
         Stream.of(text.split("\n")).map(line -> Arrays.asList(line.split("\t"))).forEach(list -> {
             try {
                 String name = checkedName(list.get(0));

@@ -327,7 +327,7 @@ public class DataVisualizerApp extends Application implements Serializable{
         
         main.setSpacing(5);
         main.setPadding(new Insets(10));
-        
+                
         cont.setOnAction(e -> {
             areYouSure = true;
             newStage.close();
