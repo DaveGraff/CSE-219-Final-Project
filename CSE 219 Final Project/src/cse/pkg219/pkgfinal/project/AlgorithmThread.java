@@ -7,8 +7,17 @@ package cse.pkg219.pkgfinal.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javafx.application.Platform;
+import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 
@@ -28,6 +37,10 @@ public class AlgorithmThread extends Thread implements Serializable{
     private Button saveGraph;
     
     private volatile boolean stop = false;
+    private Map<String, String> labels = new HashMap<>();
+    private Map<String, Point2D> locations = new HashMap<>();
+    private List<Point2D> centroids;
+    private int specialClusterNum;
     
     AlgorithmThread(Algorithm a, ArrayList<DataPoint> d, MyChart c, Button r, HBox h, Button s){
         algo = a;
@@ -48,37 +61,14 @@ public class AlgorithmThread extends Thread implements Serializable{
             }
         });
         saveGraph = s;
-    }
-    
-    public void randomClassifier() {
-        Random RAND = new Random();
-        int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
-        int yCoefficient = 10;
-        int constant = RAND.nextInt(11);
-        int thing = counter;
-        data.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter)));
-        data.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter + 1)));
-    }
-    
-    public void algoPicker(){
-        switch(algo.getName()){
-            case "Random Classifier": randomClassifier();
-            break;
-            case "Random Clusterer": randomClusterer();
-            break;
-            case "K Means Clusterer": System.out.println("K means");
+        if(a.getType() == AlgorithmType.Clustering){
+            if(a.getConfig().getClusterNum() < 2)
+                specialClusterNum = 2;
+            else if(a.getConfig().getClusterNum() > 4)
+                specialClusterNum = 4;
+            else specialClusterNum = a.getConfig().getClusterNum();
         }
-    }
-    
-    public void randomClusterer(){
-        ArrayList<String> forClustering = new ArrayList<>();
-        for(int i = 0; i < algo.getConfig().getClusterNum(); i++){
-            forClustering.add("Random"+i);
-        }
-        data.forEach(e -> {
-            int index = (int)(Math.random() * forClustering.size());
-            e.setSeries(forClustering.get(index));
-        });
+            
     }
     
     /**
@@ -140,5 +130,108 @@ public class AlgorithmThread extends Thread implements Serializable{
             });
             cont.fire();
         }
+    }
+
+    public void algoPicker() {
+        switch (algo.getName()) {
+            case "Random Classifier":
+                randomClassifier();
+                break;
+            case "Random Clusterer":
+                randomClusterer();
+                break;
+            case "K Means Clusterer":
+                kMeansClusterer();
+                break;
+        }
+    }
+
+    public void randomClassifier() {
+        Random RAND = new Random();
+        int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
+        int yCoefficient = 10;
+        int constant = RAND.nextInt(11);
+        int thing = counter;
+        data.add(new DataPoint((-yCoefficient * bounds[2] - constant) / xCoefficient, (-xCoefficient * bounds[0] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter)));
+        data.add(new DataPoint((-yCoefficient * bounds[3] - constant) / xCoefficient, (-xCoefficient * bounds[1] - constant) / yCoefficient, "Random" + thing, "R" + (2 * counter + 1)));
+    }
+
+    public void randomClusterer() {
+        ArrayList<String> forClustering = new ArrayList<>();
+        for (int i = 0; i < algo.getConfig().getClusterNum(); i++) {
+            forClustering.add("Random" + i);
+        }
+        data.forEach(e -> {
+            int index = (int) (Math.random() * forClustering.size());
+            e.setSeries(forClustering.get(index));
+        });
+    }
+    
+    public void kMeansClusterer(){
+        if(counter == 1){
+            data.forEach(e -> {
+                labels.put(e.getName(), e.getSeries());
+                locations.put(e.getName(), new Point2D(e.getX(), e.getY()));
+            });
+            initializeCentroids();
+        }
+        assignLabels();
+        recomputeCentroids();
+        data.clear();
+        for(String key : labels.keySet()){
+            Point2D point = locations.get(key);
+            data.add(new DataPoint(point.getX(), point.getY(), key, labels.get(key)));
+        }
+    }
+    
+    private void initializeCentroids() {
+        Set<String>  chosen        = new HashSet<>();
+        List<String> instanceNames = new ArrayList<>(labels.keySet());
+        Random       r             = new Random();
+        while (chosen.size() < specialClusterNum) {
+            int i = r.nextInt(instanceNames.size());
+            while (chosen.contains(instanceNames.get(i)))
+                ++i;
+            chosen.add(instanceNames.get(i));
+        }
+        centroids = chosen.stream().map(name -> locations.get(name)).collect(Collectors.toList());
+    }
+    
+    private void assignLabels() {
+        locations.forEach((instanceName, location) -> {
+            double minDistance      = Double.MAX_VALUE;
+            int    minDistanceIndex = -1;
+            for (int i = 0; i < centroids.size(); i++) {
+                double distance = computeDistance(centroids.get(i), location);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    minDistanceIndex = i;
+                }
+            }
+            labels.put(instanceName, Integer.toString(minDistanceIndex));
+        });
+    }
+    
+    private static double computeDistance(Point2D p, Point2D q) {
+        return Math.sqrt(Math.pow(p.getX() - q.getX(), 2) + Math.pow(p.getY() - q.getY(), 2));
+    }
+    
+    private void recomputeCentroids() {
+        IntStream.range(0, specialClusterNum).forEach(i -> {
+            AtomicInteger clusterSize = new AtomicInteger();
+            Point2D sum = labels
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> i == Integer.parseInt(entry.getValue()))
+                    .map(entry -> locations.get(entry.getKey()))
+                    .reduce(new Point2D(0, 0), (p, q) -> {
+                        clusterSize.incrementAndGet();
+                        return new Point2D(p.getX() + q.getX(), p.getY() + q.getY());
+                    });
+            Point2D newCentroid = new Point2D(sum.getX() / clusterSize.get(), sum.getY() / clusterSize.get());
+            if (!newCentroid.equals(centroids.get(i))) {
+                centroids.set(i, newCentroid);
+            }
+        });
     }
 }

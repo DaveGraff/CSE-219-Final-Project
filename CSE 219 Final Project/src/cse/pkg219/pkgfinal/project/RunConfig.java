@@ -12,10 +12,10 @@ import java.io.Serializable;
  * @author HP
  */
 public class RunConfig implements Serializable{
-    int maxIter;
-    int updateInterval;
-    int clusterNum;
-    boolean continuous;
+    private int maxIter;
+    private int updateInterval;
+    private int clusterNum;
+    private boolean continuous;
     /**
      * The default run configuration for any algorithm
      */
