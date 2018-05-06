@@ -138,7 +138,12 @@ public class DataState implements Serializable{
             line++;
         });
         loadedMetaData[0] = Integer.toString(lineNames.size()) + " Instances";
-        loadedMetaData[1] = Integer.toString(labelList.size()) + " Labels";
+        
+        int size = labelList.size();
+        if(labelList.size() == 1)
+            loadedMetaData[1] = Integer.toString(labelList.size()) + " Label";
+        else loadedMetaData[1] = Integer.toString(labelList.size()) + " Labels";
+        
         loadedMetaData[2] = "Labels: ";
         for(String string : labelList){
             loadedMetaData[2] = loadedMetaData[2].concat(string + ", ");
